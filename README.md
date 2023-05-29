@@ -24,3 +24,5 @@ This code was created by me for my needs on the project. I have attempted, to th
 someone with sufficient MATLAB experience (or general coding experience) should be able to navigate the code. However, I cannot obviously guarantee that. Any questions
 regarding the code should be directed to me (E. Larsen).
 
+"We stand on the shoulders of giants."
+Special thanks to Jie Deng and Marc Hirschmann, whose work before me was instrumental to this project.
