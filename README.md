@@ -21,7 +21,7 @@ be found here: https://github.com/neojie/oxidation_lite
 From this, I calculated the PV integration for oxygen fugacity in modPVcalc.m
 
 This code was created by me for my needs on the project. I have attempted, to the best of my ability, to clean up the code and comment for my own sake. I hope that 
-someone with sufficient MATLAB experience (or general coding experience) should be able to navigate the code. However, I cannot obviously guarantee that. Any questions
+someone with sufficient MATLAB experience (or general coding experience) will be able to navigate the code. However, I cannot obviously guarantee that. Any questions
 regarding the code should be directed to me (E. Larsen).
 
 "We stand on the shoulders of giants."
