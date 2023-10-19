@@ -1,16 +1,21 @@
 % EL
 % Feb 2023
+% Updated 09-06-2023
 %
 % IW Buffer
 % Hirschmann 2021
 %
-% Inputs: Pressure (P), Temperature (P)
-% Output: IW at each given P-T value as a log10 value
+% Inputs:   P       [Pa] Pressure 
+%           T       [K] temperature
+% 
+% Output:   IW at each given P-T value as a log10 value
 %
 % Note, H21 does not recommend using this function directly past 100GPa.
 % We've compromised by linearly extrapolating past 100GPa
 
 function [IW] = getIW_H21(P,T)
+    
+    P = P/1e9;              %H21 did this in GPa, so convert
 
     %Table 1 from Hirschmann 2021
     m_cc = [6.844864,       1.175691e-1,    1.143873e-3,    0,              0;

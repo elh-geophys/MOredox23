@@ -1,72 +1,121 @@
 % EL
 % Aug 2022
-% Updated 2023-03-12
+% Updated 2023-09-24
 %
 % Efficiency vs Depth figure (Late Accretion)
 
-reset = 1;
+reset = 0;
 
 if reset == 1
     clear;
     
-    data = readmatrix('\db\Rain_EffvsD_late.xlsx', 'Sheet', 'data');
-    Z = data(1:100,1);
-    eff = data(10:28,2);            %just 1%-100%
+    xlsx = '\db\Rain_EffvsD_late_Tconst.xlsx';
+    
+    data = readmatrix(xlsx, 'Sheet', 'data', 'Range', 1);
+    P = data(2,1:100)/1e9;      %just to ~50GPa
+    eff = data(1,10:28);        %just 1%-100%            
 
     %these are all set before Cr oxi    
-    data = readmatrix('Rain_EffvsD_late.xlsx', 'Sheet', 'H04_nomix');
-    H04_nomix = data(1:100,10:28);
-    data = readmatrix('Rain_EffvsD_late.xlsx', 'Sheet', 'H04_mix');
-    H04_mix = data(1:100,10:28);
+    data = readmatrix(xlsx, 'Sheet', 'H04_50th_nomix');
+    H04_50th_nomix = data(1:100,10:28);
+    data = readmatrix(xlsx, 'Sheet', 'H04_50th_mix');
+    H04_50th_mix = data(1:100,10:28);
     
-    data = readmatrix('Rain_EffvsD_late.xlsx', 'Sheet', 'N21_nomix');
-    N21_nomix = data(1:100,10:28);
-    data = readmatrix('Rain_EffvsD_late.xlsx', 'Sheet', 'N21_mix');
-    N21_mix = data(1:100,10:28);
+    data = readmatrix(xlsx, 'Sheet', 'H04_25th_nomix');
+    H04_25th_nomix = data(1:100,10:28);
+    data = readmatrix(xlsx, 'Sheet', 'H04_25th_mix');
+    H04_25th_mix = data(1:100,10:28);
+    
+    data = readmatrix(xlsx, 'Sheet', 'H04_5th_nomix');
+    H04_5th_nomix = data(1:100,10:28);
+    data = readmatrix(xlsx, 'Sheet', 'H04_5th_mix');
+    H04_5th_mix = data(1:100,10:28);
+    
+    data = readmatrix(xlsx, 'Sheet', 'H04_1st_nomix');
+    H04_1st_nomix = data(1:100,10:28);
+    data = readmatrix(xlsx, 'Sheet', 'H04_1st_mix');
+    H04_1st_mix = data(1:100,10:28);
+    
+%     data = readmatrix(xlsx, 'Sheet', 'N21_50th_nomix');
+%     N21_50th_nomix = data(1:100,10:28);
+%     data = readmatrix(xlsx, 'Sheet', 'N21_50th_mix');
+%     N21_50th_mix = data(1:100,10:28);
+%     
+%     data = readmatrix(xlsx, 'Sheet', 'N21_25th_nomix');
+%     N21_25th_nomix = data(1:100,10:28);
+%     data = readmatrix(xlsx, 'Sheet', 'N21_25th_mix');
+%     N21_25th_mix = data(1:100,10:28);
+%     
+%     data = readmatrix(xlsx, 'Sheet', 'N21_5th_nomix');
+%     N21_5th_nomix = data(1:100,10:28);
+%     data = readmatrix(xlsx, 'Sheet', 'N21_5th_mix');
+%     N21_5th_mix = data(1:100,10:28);
     
 end
 
-mix = H04_mix - 0.35/8.05;       %0.35% reduction in FeO1.5 after Cr oxi with 8.05% FeO* from Deng20 comp
-nomix = H04_nomix - 0.35/8.05;
-val = 1;                            %for r_0 to choose
-title_name = "H04";
+mix = H04_5th_mix - 0.35/8.1;       %0.35% reduction in FeO1.5 after Cr oxi with 8.1% FeO*
+nomix = H04_5th_nomix - 0.35/8.1;
+r_0_idx = 2;                            %for r_0 to choose
+title_name = "H04: 5th Percentile";
+letter = "b";
 
 %Fe3/sumFe value AFTER GI
-r_0_H04 = 0.1267 - 0.35/8.05;     %median from H04 modeling
-r_0_N21 = 0.1116 - 0.35/8.05;     %median from N21 modeling
-
-r_0 = [r_0_H04, r_0_N21];
+%Tconst method
+         % 1st     5th     25th    50th
+    r_0 = [0.0862, 0.0949, 0.1078, 0.1177];   %H04
+    %r_0 =      [0.0949, 0.1030, 0.1134];      %N21 modeling
+%Pmo method
+    %r_0 = [0.0718, 0.0845, 0.1085, 0.1272];   %H04
+    %r_0 =      [0.0918, 0.1040, 0.1194];      %N21
+%U2Q method
+    %r_0 =      [0.0507, 0.0641, 0.0808];      %H04
+    %r_0 =      [0.0901, 0.1033, 0.1189];      %N21
+    
+r_0 = r_0(r_0_idx)-0.35/8.1;
      
+%       0.2-0.3         0.3-0.4         0.4-0.5         0.5-0.6         rest
 %map = [0.88 0.88 0.88; 0.82 0.82 0.82; 0.78 0.78 0.78; 0.72 0.72 0.72; 1 1 1];
-%map = [0.78 0.78 0.78; 0.72 0.72 0.72; 1 1 1; 1 1 1; 1 1 1];
-map = [0.72 0.72 0.72; 1 1 1; 1 1 1; 1 1 1; 1 1 1];
-%map = [0.78 0.78 0.78; 0.72 0.72 0.72; 1 1 1];                                       % chosen mix contour colors
+
+%map = [0.88 0.88 0.88; 0.82 0.82 0.82];
+%map = [0.82 0.82 0.82; 0.78 0.78 0.78];
+%map = [0.88 0.88 0.88; 0.82 0.82 0.82; 0.78 0.78 0.78];
+%map = [0.82 0.82 0.82; 0.78 0.78 0.78; 0.72 0.72 0.72; 1 1 1];
+%map = [0.72 0.72 0.72; 1 1 1; 1 1 1; 1 1 1; 1 1 1];
+%map = [0.82 0.82 0.82; 0.78 0.78 0.78; 0.72 0.72 0.72]; 
+map = [0.78 0.78 0.78; 0.72 0.72 0.72];         % chosen mix contour colors
 
 map_neg = [0 0 0];
 
 c = linspace(0.005, 0.1, 20);
 ct = [0.01 0.02 0.03 0.04 0.05 0.06];
 c0 = [0.02 0.03 0.04 0.05 0.06];
-c_neg = [-0.03 0];
+c_neg = [-0.05 0];                      %for negative Fe3/sumFe limit
+c_r0 = [-0.1, r_0];                     %for original Fe3/sumFe value
 
 figure('Position', [200 200 500 400]);
 
 ax1 = axes;
-contourf(ax1, Z/1e3, log10(eff), mix', c0, 'LineWidth', 2, 'EdgeColor', 'none');
+contourf(ax1, P, log10(eff), mix', c0, 'LineWidth', 2, 'EdgeColor', 'none');
 
 ax2 = axes;
-contour(ax2, Z/1e3, log10(eff), nomix', c, 'LineWidth', 2, 'ShowText', 'on', 'TextList', ct, 'LabelSpacing', 500, 'FaceColor', 'none');
+contour(ax2, P, log10(eff), nomix', c, 'LineWidth', 2, 'ShowText', 'on', 'TextList', ct, 'LabelSpacing', 500, 'FaceColor', 'none');
 
 ax3 = axes;
-contour(ax3, Z/1e3, log10(eff), nomix', c_neg, 'LineWidth', 1, 'LineStyle', '--', 'FaceColor', 'none');
+contour(ax3, P, log10(eff), nomix', c_neg, 'LineWidth', 2, 'LineStyle', ':', 'FaceColor', 'none');
 
-linkaxes([ax1,ax2,ax3])
+ax4 = axes;
+contour(ax4, P, log10(eff), nomix', c_r0, 'LineWidth', 1, 'LineStyle', '--', 'Color', 'b', 'FaceColor', 'none');
+
+linkaxes([ax1,ax2,ax3,ax4])
 ax2.Visible = 'off';
 ax2.XTick = [];
 ax2.YTick = [];
 ax3.Visible = 'off';
 ax3.XTick = [];
 ax3.YTick = [];
+ax4.Visible = 'off';
+ax4.XTick = [];
+ax4.YTick = [];
 
 colormap(ax1, map)
 colormap(ax2, flipud(colormap(ax2,cool)));
@@ -74,16 +123,14 @@ colormap(ax3, map_neg);
 
 ax1.Box = 'on';
 ax1.Layer = 'top';
-ax1.XLabel.String = 'Depth (km)';
-ax1.XTick = [0 200 400 600 800 1000];
+ax1.XLim = [min(P) 50];
+ax1.XLabel.String = 'Pressure (GPa)';
 ax1.YLabel.String = 'Degree of Chemical Equilibration';
 ax1.YTick = log10(eff);
 ax1.YTickLabel = {'1%' '' '' '' '' '' '' '' '' ...
     '10%' '' '' '' '' '' '' '' '' ...
     '100%'};
-text(820, -1.9, "r_0=" + round(r_0(val),4), 'FontWeight', 'bold')
+text(42, -1.87, "r_0=" + round(r_0,3), 'FontWeight', 'bold')
+text(47, -1.70, letter, 'FontWeight', 'bold', 'FontSize', 20)
 title(ax1, title_name)
-
-
-
 

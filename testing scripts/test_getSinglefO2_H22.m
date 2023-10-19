@@ -10,10 +10,10 @@
 % Output: log10(fO2) compared to IW (DeltaIW), and logfO2
 
 % Values to test
-P = 40; 
-T = 4100;
-r = 0.05;
-compSheet = 'Deng20';
+P = 18; 
+T = 2000;
+r = 0.002;
+compSheet = 'EarlyAccr';
 
 
 % read %wt and mol wt data
@@ -85,6 +85,6 @@ end
 
 logfO2vsIW = logfO2 - IW
 
-[logfO2vsIW_func,~] = getSinglefO2_H22(P,T,r,compSheet)
+[logfO2vsIW_func,~] = getSinglefO2_H22(P,T,r,compSheet);
 
 

@@ -45,10 +45,6 @@ for j = 1:length(geotherms)
     IW_C09(:,j) = (a0+a1*P(:,j)) + (b0+b1*P(:,j)+b2*(P(:,j).^2)+b3*(P(:,j).^3))./T(:,j);
 end
 
-% a0 = 6.54106; a1 = 0.0012324;
-% b0 = -28163.6; b1 = 546.32; b2 = -1.13412; b3 = 0.0019274;
-% IW_C09_c = (a0+a1*P) + (b0+b1*P+b2*(P.^2)+b3*(P.^3))./T_const;
-
 %IW_diff = IW_lin - IW_eval(227:end);
 
 figure(1);
@@ -61,9 +57,6 @@ for j = 1:length(geotherms)
     plot(P(227:end,j), IW_lin(:,j), ':', 'Color', colors(j), 'LineWidth', 1.5)
     plot(P(:,j), IW_C09(:,j), '--', 'Color', colors(j), 'LineWidth', 1.5)
 end
-% plot(P, IW_eval_c, ':', 'Color', '#0072BD', 'LineWidth', 1.5, 'DisplayName', 'H21 Evaluated (Const)')
-% plot(P(227:end), IW_lin_c, ':', 'Color', '#D95319', 'LineWidth', 1.5, 'DisplayName', 'H21 Extrapolated (Const)')
-% plot(P, IW_C09_c, ':', 'Color', '#EDB120', 'LineWidth', 1.5, 'DisplayName', 'Campbell+09 (Const)')
 xlim([90, 135])
 xticks([90, 100, 110, 120, 130])
 yticks([9, 10, 11, 12, 13])

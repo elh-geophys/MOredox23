@@ -4,18 +4,14 @@
 clear;
 clf;
 
-% data from JK adiabat code
-data = readmatrix('geotherms_data.xlsx', 'Sheet', 'PREM');
+% data from JK adiabat code for PREM
+data = readmatrix('geotherms.xlsx', 'Sheet', 'PREM');
 P = data(:,2);          %[GPa]
 z = data(:,3);          %[km] depth
 rho_s = data(:,4);      %[kg/m^3] PREM density
 
-data = readmatrix('geotherms_data.xlsx', 'Sheet', '3500K');
-T = data(:,4);          %3500 K geotherm
-
 mu_s = 1e15;            
 %[Pa s] viscosity of solid underlying layer (somewhere around 10^13 to 10^18)
-% maybe try M&K19b, Eqns 11 & 12 to get mu_s based on adiabat temp
                         
 mu_l = 0.01;             
 %[Pa s] viscosity of metal-rich layer

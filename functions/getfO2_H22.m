@@ -8,7 +8,7 @@
 % MoleWeights.xlsx)
 % Output: log10(fO2) compared to IW (DeltaIW), and logfO2
 
-function [logfO2vsIW, logfO2] = getfO2_H22(P, T, r, compSheet)
+function [logfO2vsIW, logfO2] = getfO2_H22(P, T, PV_term, r, compSheet)
 
     % read %wt and mol wt data
     % SiO2 TiO2 Al2O3 Cr2O3 FeO* MnO MgO NiO CaO Na2O K2O P2O5
@@ -48,11 +48,11 @@ function [logfO2vsIW, logfO2] = getfO2_H22(P, T, r, compSheet)
     % Using pre-calculated PV term for the geotherm
     % This is = integration/(R*T) so still need to 1/ln(10) for H22 Eqn 21
     % see modPVcalc.m to see how this is calculated from Deng2020 EOS
-    Tinit = T(1);
-    name = "PV_"+Tinit+"KTp";
-    table = readtable('\db\PVcalc.xlsx','ReadVariableNames',true);
-    PVtemp = table{:,name};
-    PV_term = PVtemp/log(10);
+%     Tinit = T(1);
+%     name = "PV_"+Tinit+"KTp";
+%     table = readtable('\db\PVcalc_old.xlsx','ReadVariableNames',true);
+%     PVtemp = table{:,name};
+%     PV_term = PVtemp/log(10);
 
     % FeRatio term
     % Note that in H22 Eqn 21, the FeRatio is given as log10(Fe3+/Fe2+), so
@@ -67,7 +67,7 @@ function [logfO2vsIW, logfO2] = getfO2_H22(P, T, r, compSheet)
     % compare to IW
     IW = zeros(length(P),1);
     for i = 1:length(P)
-        if P(i) <= 100
+        if P(i) <= 100e9
             IW(i) = getIW_H21(P(i),T(i));
             i_last = i;
         else     %linear extrap past 100GPa

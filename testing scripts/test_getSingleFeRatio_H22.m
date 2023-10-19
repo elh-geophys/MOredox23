@@ -8,11 +8,11 @@
 clear;
 
 % Values to test
-T = 2573.15;
-P = 23;
-dIW = -2;             %metal-silicate eq value to test
-logfO2 = 7.07254267;        %logfO2 to test, comment out line 73
-compSheet = 'Armstrong19';
+T = 2324;
+P = 8.8;
+dIW = -1.46;             %metal-silicate eq value to test
+%logfO2 = 7.07254267;        %logfO2 to test, comment out line 73
+compSheet = 'ImpLate';
 
 % Fitting parameters from Table 1
 R = 8.314;
@@ -70,7 +70,7 @@ for i = 1:length(P)
     end
 end
 
-%logfO2 = dIW + IW;
+logfO2 = dIW + IW;
 
 fO2_term = a*logfO2 + b + c./T;
 

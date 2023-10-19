@@ -1,13 +1,13 @@
 % EL
 % July 2022
-% Updted 2023-03-13
+% Updted 2023-10-06
 % 
 % Creates figure for convection cell mixing model, as fO2_surf vs time and
 % Fe ratio vs time
 % Uses data from CMBcells.xlsx, which is created by Ratios_CMBcells.m and
 % data from MidMOcells.xlsx, which is created by Ratios_MidMOcells.m
 
-reset = 0;
+reset = 1;
 
 if reset == 1
     clear;
@@ -18,10 +18,10 @@ if reset == 1
     row_40 = [6,7];
     row_P25 = [2,3];
     row_P50 = [4,5];
-    row_P80 = [6,7];
+    row_P75 = [6,7];
     row_P100 = [8,9];
 
-    data = readmatrix('CMBcells.xlsx', 'Sheet','3500K');
+    data = readmatrix('CMBcells.xlsx', 'Sheet','3500');
     t = data(1,2:end);
     n10_r = data(row_10(1),2:end);
     n10_fO2 = data(row_10(2),2:end);
@@ -30,7 +30,7 @@ if reset == 1
     n40_r = data(row_40(1),2:end);
     n40_fO2 = data(row_40(2),2:end);
     
-    data = readmatrix('CMBcells.xlsx', 'Sheet','4500K');
+    data = readmatrix('CMBcells.xlsx', 'Sheet','4500');
     n10_r_b = data(row_10(1),2:end);
     n10_fO2_b = data(row_10(2),2:end);
     n20_r_b = data(row_20(1),2:end);
@@ -38,23 +38,23 @@ if reset == 1
     n40_r_b = data(row_40(1),2:end);
     n40_fO2_b = data(row_40(2),2:end);
     
-    data = readmatrix('MidMOcells.xlsx', 'Sheet','3500K');
+    data = readmatrix('MidMOcells.xlsx', 'Sheet','3500');
     P25_r = data(row_P25(1),2:end);
     P25_fO2 = data(row_P25(2),2:end);
     P50_r = data(row_P50(1),2:end);
     P50_fO2 = data(row_P50(2),2:end);
-    P80_r = data(row_P80(1),2:end);
-    P80_fO2 = data(row_P80(2),2:end);
+    P75_r = data(row_P75(1),2:end);
+    P75_fO2 = data(row_P75(2),2:end);
     P100_r = data(row_P100(1),2:end);
     P100_fO2 = data(row_P100(2),2:end);
     
-    data = readmatrix('MidMOcells.xlsx', 'Sheet','4500K');
+    data = readmatrix('MidMOcells.xlsx', 'Sheet','4500');
     P25_r_b = data(row_P25(1),2:end);
     P25_fO2_b = data(row_P25(2),2:end);
     P50_r_b = data(row_P50(1),2:end);
     P50_fO2_b = data(row_P50(2),2:end);
-    P80_r_b = data(row_P80(1),2:end);
-    P80_fO2_b = data(row_P80(2),2:end);
+    P75_r_b = data(row_P75(1),2:end);
+    P75_fO2_b = data(row_P75(2),2:end);
     P100_r_b = data(row_P100(1),2:end);
     P100_fO2_b = data(row_P100(2),2:end);
 
@@ -112,7 +112,7 @@ hold on
 box on
 plot(t/1e6, P25_r, 'Color', blue(5,:), "LineWidth", 1.5);
 plot(t/1e6, P50_r, 'Color', blue(4,:), "LineWidth", 1.5);
-plot(t/1e6, P80_r, 'Color', blue(3,:), "LineWidth", 1.5);
+plot(t/1e6, P75_r, 'Color', blue(3,:), "LineWidth", 1.5);
 plot(t/1e6, P100_r, 'Color', blue(2,:), "LineWidth", 1.5);
 plot(t/1e6, n20_r, 'Color', blue(1,:), "LineWidth", 1.5);     %Pbase = 135
 xlabel("Time (Myr)")
@@ -126,7 +126,7 @@ hold on
 box on
 P25 = plot(t/1e6, P25_fO2, 'Color', blue(5,:), "LineWidth", 1.5);
 P50 = plot(t/1e6, P50_fO2, 'Color', blue(4,:), "LineWidth", 1.5);
-P80 = plot(t/1e6, P80_fO2, 'Color', blue(3,:), "LineWidth", 1.5);
+P80 = plot(t/1e6, P75_fO2, 'Color', blue(3,:), "LineWidth", 1.5);
 P100 = plot(t/1e6, P100_fO2, 'Color', blue(2,:), "LineWidth", 1.5);
 P135 = plot(t/1e6, n20_fO2, 'Color', blue(1,:), "LineWidth", 1.5);     %Pbase = 135
 xlabel("Time (Myr)")
@@ -141,7 +141,7 @@ hold on
 box on
 plot(t/1e6, P25_r_b, 'Color', red(5,:), "LineWidth", 1.5);
 plot(t/1e6, P50_r_b, 'Color', red(4,:), "LineWidth", 1.5);
-plot(t/1e6, P80_r_b, 'Color', red(3,:), "LineWidth", 1.5);
+plot(t/1e6, P75_r_b, 'Color', red(3,:), "LineWidth", 1.5);
 plot(t/1e6, P100_r_b, 'Color', red(2,:), "LineWidth", 1.5);
 plot(t/1e6, n20_r_b, 'Color', red(1,:), "LineWidth", 1.5);     %Pbase = 135
 xlabel("Time (Myr)")
@@ -155,7 +155,7 @@ hold on
 box on
 P25 = plot(t/1e6, P25_fO2_b, 'Color', red(5,:), "LineWidth", 1.5);
 P50 = plot(t/1e6, P50_fO2_b, 'Color', red(4,:), "LineWidth", 1.5);
-P80 = plot(t/1e6, P80_fO2_b, 'Color', red(3,:), "LineWidth", 1.5);
+P80 = plot(t/1e6, P75_fO2_b, 'Color', red(3,:), "LineWidth", 1.5);
 P100 = plot(t/1e6, P100_fO2_b, 'Color', red(2,:), "LineWidth", 1.5);
 P135 = plot(t/1e6, n20_fO2_b, 'Color', red(1,:), "LineWidth", 1.5);     %Pbase = 135
 xlabel("Time (Myr)")
