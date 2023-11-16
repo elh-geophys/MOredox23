@@ -11,7 +11,7 @@ if reset == 1
     
     xlsx = '\db\Rain_EffvsD_Tconst.xlsx';
     
-    data = readmatrix(xlsx, 'Sheet', 'H04_data', 'Range', 1);
+    data = readmatrix(xlsx, 'Sheet', 'N21_data', 'Range', 1);
     P = data(2,:)/1e9;
     eff = data(1,1:28);
  
@@ -41,17 +41,17 @@ if reset == 1
   
 end
 
-mix = H04_p75_mix-0.35/8.1;       %0.35% reduction in FeO1.5 after Cr oxi with 8.1% FeO* from Deng20 comp
-nomix = H04_p75_nomix-0.35/8.1;
+mix = N21_p75_mix-0.35/8.1;       %0.35% reduction in FeO1.5 after Cr oxi with 8.1% FeO* from Deng20 comp
+nomix = N21_p75_nomix-0.35/8.1;
 r0_val = 6;
-title_name = "H04: 75th Percentile";
-letter = "c";
+title_name = "N21: 75th Percentile";
+letter = "f";
 
 %Fe3/sumFe value BEFORE GI from modeling
 %     [0th    1st    5th    25th   50th   75th   95th   99th   100th]
 %Tconst method
-    r_0 = [0.0740,0.0786,0.0852,0.0970,0.1050,0.1125,0.1216,0.1244,0.1263];     %H04
-    %r_0 = [0.0241,0.0370,0.0422,0.0499,0.0552,0.0596,0.0669,0.0705,0.0719];     %N21
+    %r_0 = [0.0740,0.0786,0.0852,0.0970,0.1050,0.1125,0.1216,0.1244,0.1263];     %H04
+    r_0 = [0.0241,0.0370,0.0422,0.0499,0.0552,0.0596,0.0669,0.0705,0.0719];     %N21
 %Pmo method
     %r_0 = [0.0466,0.0593,0.0727,0.0964,0.1123,0.1270,0.1434,0.1461,0.1498];     %H04
     %r_0 = [0.0151,0.0184,0.0214,0.0312,0.0422,0.0544,0.0694,0.0744,0.0761];     %N21
@@ -62,7 +62,8 @@ letter = "c";
 %map = [0.88 0.88 0.88; 0.82 0.82 0.82; 0.78 0.78 0.78; 0.72 0.72 0.72; 1 1 1];
 %map = [0.82 0.82 0.82; 0.78 0.78 0.78; 0.72 0.72 0.72; 1 1 1];
 %map = [0.78 0.78 0.78; 0.72 0.72 0.72; 1 1 1; 1 1 1];
-map = [0.72 0.72 0.72; 1 1 1; 1 1 1];                                       % chosen mix contour colors
+%map = [0.72 0.72 0.72; 1 1 1; 1 1 1];                                       % chosen mix contour colors
+map = [0.82 0.82 0.82; 1 1 1];
 
 map_neg = [0 0 0];
 
@@ -73,7 +74,8 @@ eff_limit_high = 0.70;              % Z19, 70% for fast accretion (GT)
 %0.02 to 0.06 contours
 c = linspace(0.01, 0.2, 20);
 ct = [0.02 0.04 0.06 0.08 0.10 0.12 0.14 0.16];
-c0 = [0.02 0.03 0.04 0.05 0.06];
+%c0 = [0.02 0.03 0.04 0.05 0.06];
+c0 = [0.02 0.06];
 c_neg = [-0.05 0];                                  %for negative Fe3/sumFe limit
 c_r0 = [-0.1, r_0(r0_val)-0.35/8.1];                %for original Fe3/sumFe value
 
@@ -86,8 +88,8 @@ contourf(ax1, P(1:size(mix,1)), log10(eff), mix', c0, 'LineWidth', 2, 'EdgeColor
 
 ax2 = axes;
 contour(ax2, P(1:size(nomix,1)), log10(eff), nomix', c, 'LineWidth', 2, 'ShowText', 'on', 'TextList', ct, 'LabelSpacing', 500, 'FaceColor', 'none');
-yline(log10(eff_limit_low), '-', 'Color', red, 'LineWidth', 1.5);
-yline(log10(eff_limit_high), '--', 'Color', red, 'LineWidth', 1.5);
+%yline(log10(eff_limit_low), '-', 'Color', red, 'LineWidth', 1.5);
+%yline(log10(eff_limit_high), '--', 'Color', red, 'LineWidth', 1.5);
 
 ax3 = axes;
 contour(ax3, P(1:size(nomix,1)), log10(eff), nomix', c_neg, 'LineWidth', 2, 'LineStyle', ':', 'FaceColor', 'none');
@@ -119,9 +121,15 @@ ax1.YTickLabel = {'0.1%' '' '' '' '' '' '' '' '' ...
     '1%' '' '' '' '' '' '' '' '' ...
     '10%' '' '' '' '' '' '' '' '' ...
     '100%'};
-%text(5, -2.8, "r_0=" + round(r_0(val),3), 'FontWeight', 'bold')
-%text(72, -2.88, "r_0=" + round(r_0(r0_val),3), 'FontWeight', 'bold')
-%text(72, -2.65, letter, 'FontWeight', 'bold', 'FontSize', 20)
-text(108, -2.88, "r_0=" + round(r_0(r0_val),3), 'FontWeight', 'bold')
-text(118, -2.65, letter, 'FontWeight', 'bold', 'FontSize', 20)
+%text(5, -2.8, "r_0=" + round(r_0(r0_val),3), 'FontWeight', 'bold')
+text(72, -2.88, "r_0=" + round(r_0(r0_val),3), 'FontWeight', 'bold')
+text(72, -2.65, letter, 'FontWeight', 'bold', 'FontSize', 20)
+%text(108, -2.88, "r_0=" + round(r_0(r0_val),3), 'FontWeight', 'bold')
+%text(118, -2.65, letter, 'FontWeight', 'bold', 'FontSize', 20)
+
+% annotation('textarrow',[0.6 0.57],[0.54 0.42])
+% text(81, -1.6,'reduced MO','FontSize',8)
+% annotation('textarrow',[0.61 0.64],[0.58 0.70])
+% text(85, -1.3,'oxidized MO','FontSize',8)
 title(ax1, title_name)
+

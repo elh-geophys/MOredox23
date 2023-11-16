@@ -9,7 +9,7 @@ reset = 0;
 if reset == 1
     clear;
     
-    xlsx = '\db\Rain_EffvsD_late_Tconst.xlsx';
+    xlsx = '\db\Rain_EffvsD_late_Pmo.xlsx';
     
     data = readmatrix(xlsx, 'Sheet', 'data', 'Range', 1);
     P = data(2,1:100)/1e9;      %just to ~50GPa
@@ -53,19 +53,19 @@ if reset == 1
     
 end
 
-mix = H04_5th_mix - 0.35/8.1;       %0.35% reduction in FeO1.5 after Cr oxi with 8.1% FeO*
-nomix = H04_5th_nomix - 0.35/8.1;
-r_0_idx = 2;                            %for r_0 to choose
-title_name = "H04: 5th Percentile";
-letter = "b";
+mix = H04_1st_mix - 0.35/8.1;       %0.35% reduction in FeO1.5 after Cr oxi with 8.1% FeO*
+nomix = H04_1st_nomix - 0.35/8.1;
+r_0_idx = 1;                            %for r_0 to choose
+title_name = "H04: 1st Percentile";
+letter = "a";
 
 %Fe3/sumFe value AFTER GI
 %Tconst method
          % 1st     5th     25th    50th
-    r_0 = [0.0862, 0.0949, 0.1078, 0.1177];   %H04
+    %r_0 = [0.0862, 0.0949, 0.1078, 0.1177];   %H04
     %r_0 =      [0.0949, 0.1030, 0.1134];      %N21 modeling
 %Pmo method
-    %r_0 = [0.0718, 0.0845, 0.1085, 0.1272];   %H04
+    r_0 = [0.0718, 0.0845, 0.1085, 0.1272];   %H04
     %r_0 =      [0.0918, 0.1040, 0.1194];      %N21
 %U2Q method
     %r_0 =      [0.0507, 0.0641, 0.0808];      %H04
@@ -82,13 +82,15 @@ r_0 = r_0(r_0_idx)-0.35/8.1;
 %map = [0.82 0.82 0.82; 0.78 0.78 0.78; 0.72 0.72 0.72; 1 1 1];
 %map = [0.72 0.72 0.72; 1 1 1; 1 1 1; 1 1 1; 1 1 1];
 %map = [0.82 0.82 0.82; 0.78 0.78 0.78; 0.72 0.72 0.72]; 
-map = [0.78 0.78 0.78; 0.72 0.72 0.72];         % chosen mix contour colors
+%map = [0.78 0.78 0.78; 0.72 0.72 0.72];         
+map = [0.82 0.82 0.82; 1 1 1];          % chosen mix contour colors
 
 map_neg = [0 0 0];
 
 c = linspace(0.005, 0.1, 20);
 ct = [0.01 0.02 0.03 0.04 0.05 0.06];
-c0 = [0.02 0.03 0.04 0.05 0.06];
+%c0 = [0.02 0.03 0.04 0.05 0.06];
+c0 = [0.02 0.06];
 c_neg = [-0.05 0];                      %for negative Fe3/sumFe limit
 c_r0 = [-0.1, r_0];                     %for original Fe3/sumFe value
 
@@ -132,5 +134,9 @@ ax1.YTickLabel = {'1%' '' '' '' '' '' '' '' '' ...
     '100%'};
 text(42, -1.87, "r_0=" + round(r_0,3), 'FontWeight', 'bold')
 text(47, -1.70, letter, 'FontWeight', 'bold', 'FontSize', 20)
+annotation('textarrow',[0.75 0.72],[0.44 0.32])
+text(40, -1.5,'reduced MO','FontSize',8)
+annotation('textarrow',[0.76 0.79],[0.48 0.60])
+text(40, -0.7,'oxidized MO','FontSize',8)
 title(ax1, title_name)
 
