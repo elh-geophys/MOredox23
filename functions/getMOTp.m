@@ -7,6 +7,7 @@
 % REQUIRED: geotherms_combo.xlsx, from M&K2019b/K2023
 %
 % INPUTS:    P_mo_base     [Pa] the pressure at the MO base, scalar or 1D array
+%            data          data from geotherms_combo.xlsx, created by code from J.Korenaga for magma ocean adiabats at different Tp
 %
 % OUTPUTS:   Tp            [K] potential temperature, scalar or 1D array
 %

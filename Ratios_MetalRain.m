@@ -1,25 +1,30 @@
 % EL
 % Original: July 2022
-% Updated: 2023-09-26
+% Updated: 2024-02-21           ah yes, almost 2 years later.
 %
-% Iron droplet equilibrium through MO during accretion with given efficiency
+% Iron droplet equilibrium through MO during accretion with given
+% efficiency and depth of equilibration
 %
 % Change the model type, efficiency, depth of MO, comp sheets, Tp type,
 % file writes
 %
 % This script can be used to test constant efficiencies (eff) and MO depths
 % (d_mo_factor)
+% 
+% NOTE: U2Q METHOD NOT WORKING DUE TO CHANGES IN IW TRACKING
 
 clear;
 
 % PARAMETERS TO CHANGE
-model = 4;                      %accretion models, 1 = W90(high), 2 = W90(low), 3 = H00, 4 = H04, 5 = N21
+model = 5;                      %accretion models, 1 = W90(high), 2 = W90(low), 3 = H00, 4 = H04, 5 = N21
 r_0 = 0.004;                    %initial Fe3+/sumFe for Earth
-eff = 0.5;                        %[] efficiency factor for droplet equilibrium, 1 = 100%
-d_mo_factor = 0.5;                %[] fraction of Pcmb pressure for MO base pressure
-compSheet_early = 'EarthEarly';           %sheet in MoleWeights.xlsx to use for composition
-compSheet_late = 'EarthLate';
-Tp_type = 'constant';           %chooose method to calculate Tp, either 'Pmo', 'U2Q', or 'constant'
+eff = 1;                        %[] efficiency factor for droplet equilibrium, 1 = 100%
+d_mo_factor = 1;                %[] fraction of Pcmb pressure for MO base pressure
+%compSheet_earth = 'H04_E';           %sheet in Compositions.xlsx to use for composition
+%compSheet_imp = 'H04_imp';
+compSheet_earth = 'N21_E';           %sheet in Compositions.xlsx to use for composition
+compSheet_imp = 'N21_imp';
+Tp_type = 'Pmo';           %chooose method to calculate Tp, either 'Pmo', 'U2Q', or 'constant'
     T0 = 1613;                      %[K] initial Tp if using U2Q method
     epsilon = 0.2;                  %energy contribution factor for U
     Tp_const = 3500;                %[K] Tp for 'constant' method
@@ -34,8 +39,12 @@ write = 0;                      %1 or 0, to write to file
 % READ DATA SHEETS
 PV_data = readmatrix('/db/PVcalc.xlsx');
 Adiabat_data = readmatrix('\db\geotherms_combo.xlsx');
-CompEarly_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', compSheet_early);
-CompLate_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', compSheet_late);
+CompEarth_data = readmatrix('\db\Compositions.xlsx', 'Sheet', compSheet_earth);
+CompImp_data = readmatrix('\db\Compositions.xlsx', 'Sheet', compSheet_imp);
+MolW_byM_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11', 'Range', 'B2:B13');
+MolW_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11', 'Range', 'C2:C13');
+
+FeO_E = CompEarth_data(5,:);
 
 % CONSTANTS
 Cp = 1e3;               %[J/kgK] specific heat 
@@ -69,16 +78,9 @@ M_c_imp = M_imp*Fe_ratio;       % [kg] approximate proportion metal mass of impa
 M_m_imp = M_imp*Si_ratio;       % [kg] approximate proportion silicate mass of impactor
 
 %estimated Fe3+/sumFe for impactor, based on Rubie+2011, Supp. Table 3a
-%determined endpoints by using test_getSingleFeRatio_H22.m
-r_imp = zeros(1, length(M_imp));
-for i = 1:length(M_imp)
-    if Accr_model(i+1) <= 0.6
-        % so GI of N21 model will have the higher value
-        r_imp(i) = 0.004;                   
-    else
-        r_imp(i) = 0.0122;
-    end
-end
+%determined from getCompositions.m
+r_imp = CompImp_data(3,:);
+FeO_imp = CompImp_data(2,:);
 
 % Use half impactor core mass between pre- and post-impact to determine R_c at impact
 % Use entire mantle mass for chemical mixing post-impact
@@ -110,7 +112,7 @@ for i = 1:length(M_imp)
 end
 P_min(isnan(P_min))=0;          %for some accretion models, where P=0 at t=0
 
-[M_eq] = calcEqSi(M_c_imp, 'sph');
+[M_eq] = calcEqSi(M_c_imp, 'sph');   % Si equilibrated mass (maximum)
 dMp_temp = M_eq*eff;
 
 r_m_Dt = zeros(1,length(t));        %final Fe3+/sumFe of mantle over evolution time
@@ -166,7 +168,7 @@ for j = 1:length(t)-1                 % j index for evolution time, where j=impa
         
         % CALCULATE Fe3+/sumFe EQUILIBRIUM RATIO AS FUNCTION OF P,T,dIW
         % Use post-impact comp and dIW
-        [r_eq,dIW] = calcFeRatio(Tad, P, Accr_model(j+1), PV, CompEarly_data, CompLate_data);
+        [r_eq,dIW] = calcFeRatio(Tad, P, PV, CompEarth_data(:,j+1), MolW_data, MolW_byM_data);
         disp([num2str(round(Tp)), 'K and ', num2str(dIW)])
         
         % METAL RAIN CALCULATION FOR THIS TIME STEP
@@ -176,7 +178,9 @@ for j = 1:length(t)-1                 % j index for evolution time, where j=impa
         M_mo = rho_m(j+1) * 4/3*pi*(R_E_post(j)^3 - R_mo^3);        %approximate mass of spherical shell MO
             
         % initial Fe ratio of mantle after mixing previous silicate with impactor silicate
-        r_m(1) = ((M_mo-M_m_imp(j))*r_m_Dt(j)+M_m_imp(j)*r_imp(j))/(M_mo);
+        r_m(1) = ((M_mo-M_m_imp(j))*FeO_E(j)*r_m_Dt(j)+M_m_imp(j)*FeO_imp(j)*r_imp(j))/((M_mo-M_m_imp(j))*FeO_E(j) + M_m_imp(j)*FeO_imp(j));
+        FeO_mo = ((M_mo-M_m_imp(j))*FeO_E(j) + M_m_imp(j)*FeO_imp(j))/M_mo;
+        disp(['Initial Fe3+/sumFe MO = ', num2str(r_m(1)), ' and FeO of MO = ', num2str(FeO_mo)]);
         
         dMp = min(dMp_temp(j), M_mo);       %take minimum between equilibrated mass & magma ocean mass
         
@@ -196,8 +200,14 @@ for j = 1:length(t)-1                 % j index for evolution time, where j=impa
         plot(r_eq, 'k--')
         plot(r_m, 'm')
         
-        r_m_Dt(j+1) = (M_mo*r_m(idx) + (M_m(j+1)-M_mo)*r_m_Dt(j))/(M_m(j+1));
+        %r_m_Dt(j+1) = (M_mo*r_m(idx) + (M_m(j+1)-M_mo)*r_m_Dt(j))/(M_m(j+1));
+        r_m_Dt(j+1) = (M_mo*FeO_mo*r_m(idx)+(M_m(j+1)-M_mo)*FeO_E(j)*r_m_Dt(j))/(M_mo*FeO_mo + (M_m(j+1)-M_mo)*FeO_E(j));
         disp([num2str(r_m(idx)), ' before and ', num2str(r_m_Dt(j+1)), ' after mixing'])
+
+        FeO_f = (M_mo*FeO_mo+(M_m(j+1)-M_mo)*FeO_E(j))/(M_m(j+1));
+        figure(2);
+        hold on
+        scatter(Accr_model(j+1),FeO_f, 'k')
         
         r_m = r_m*0;                % reset r_m
         

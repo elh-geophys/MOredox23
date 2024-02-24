@@ -9,51 +9,43 @@
 clear;
 
 % PARAMETERS
-compSheet_early = 'EarthEarly';     %sheet in MoleWeights.xlsx to use for composition
-compSheet_late = 'EarthLate';
-r_imp = 0.0122;                     %Fe3+/sumFe of impactor silicate
-Tp_type = 'Pmo';                    %constant, Pmo, or U2Q
+compSheet_earth = 'H04_E';     %sheet in Compositions.xlsx to use for Earth composition
+r_imp = 0.0055;                %Using 0.01M_earth in Rubie+2011 TableS3a inputs in test_getSingleFeRatio_H22.m
+FeO_imp = 8.2;                 %assume impactor has similar composition to Earth            
+Tp_type = 'Pmo';                   %constant, Pmo, or U2Q
     T0 = 1613;                          %for U2Q method
 dP = 0.5e9;    
 
 %Fe3/sumFe value AFTER GI
 %Tconst method
-    %r_0 = 0.0862;      %1st H04
-    %r_0 = 0.0949;      %5th H04  
-    %r_0 = 0.1078;      %25th H04
-    %r_0 = 0.1177;      %median from H04 modeling
-    %r_0 = 0.1134;      %median from N21 modeling
-    %r_0 = 0.1030;      %25th N21
-    %r_0 = 0.0949;      %5th N21
+    %r_0 = 0.0866;      %1st H04
+    %r_0 = 0.0963;      %5th H04  
+    %r_0 = 0.1087;      %25th H04
+    %r_0 = 0.1191;      %median from H04 modeling
+    %r_0 = 0.1324;      %median from N21 modeling
+    %r_0 = 0.1283;      %25th N21
+    %r_0 = 0.1239;      %5th N21
 %Pmo method
-     r_0 = 0.0718;       %1st H04  
-%     r_0 = 0.0845;       %5th H04
-%     r_0 = 0.1085;       %25th H04
-%     r_0 = 0.1272;       %median H04
-%     r_0 = 0.0918;       %5th N21
-%     r_0 = 0.1040;       %25th N21
-%     r_0 = 0.1194;       %median N21
-%U2Q method
-%     r_0 = 0.0507;       %5th H04
-%     r_0 = 0.0641;       %25th H04
-%     r_0 = 0.0808;       %median H04
-%     r_0 = 0.0901;       %5th N21
-%     r_0 = 0.1033;       %25th N21
-%     r_0 = 0.1189;       %median N21
+    %r_0 = 0.0653;      %1st H04
+    %r_0 = 0.0796;      %5th H04
+    %r_0 = 0.1073;      %25th H04
+    r_0 = 0.1278;      %50th H04
 
-sheet_nomix = 'H04_1st_nomix';     %sheet name to record data
-sheet_mix = 'H04_1st_mix';
+
+sheet_nomix = 'H04_50th_nomix';     %sheet name to record data
+sheet_mix = 'H04_50th_mix';
 dataSheet = 'data';
 fileOut = 'Rain_EffvsD_late_Pmo.xlsx';               % file name
-write = 0;
+write = 1;
 
 % ---------------------------------------------------------------------- %
 
 % READ DATA SHEETS
 PV_data = readmatrix('/db/PVcalc.xlsx');
 Adiabat_data = readmatrix('\db\geotherms_combo.xlsx');
-CompEarly_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', compSheet_early);
-CompLate_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', compSheet_late);
+CompEarth_data = readmatrix('\db\Compositions.xlsx', 'Sheet', compSheet_earth);
+MolW_byM_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11', 'Range', 'B2:B13');
+MolW_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11', 'Range', 'C2:C13');
 
 % CONSTANTS
 Cp = 1e3;               %[J/kgK] specific heat 
@@ -66,6 +58,8 @@ Accr_model = [0.99, 1];
 
 M_E = Accr_model(1) * M_E_0;         % mass post-GI
 M_imp = diff(Accr_model) * M_E_0;       % mass accreted in late accretion
+
+FeO_E = CompEarth_data(5,end);
 
 % assume core and mantle take up proportional mass of Earth
 M_c = M_E * M_c_0/M_E_0;    %core
@@ -154,14 +148,15 @@ for k = 1:length(eff)          % for each efficiency
         PV = calcPV(Tad,P, PV_data);
         
         % CALCULATE Fe3+/sumFe EQUILIBRIUM RATIO AS FUNCTION OF P,T,dIW
-        [r_eq,~] = calcFeRatio(Tad, P, Accr_model(2), PV, CompEarly_data, CompLate_data);
+        [r_eq,~] = calcFeRatio(Tad, P, PV, CompEarth_data(:,end), MolW_data, MolW_byM_data);
      
         % METAL RAIN CALCULATION FOR THIS TIME STEP
         R_mo = interp1(P_check, R, P_late(j));
         M_mo = rho_m(2) * 4/3*pi*(R_E_post^3 - R_mo^3);        %approximate mass of spherical shell MO
     
         % initial Fe ratio of mantle after mixing previous silicate with impactor silicate
-        r_m(1) = ((M_mo-M_m_imp)*r_0+M_m_imp*r_imp)/(M_mo);
+        r_m(1) = ((M_mo-M_m_imp)*FeO_E*r_0+M_m_imp*FeO_imp*r_imp)/((M_mo-M_m_imp)*FeO_E + M_m_imp*FeO_imp);
+        FeO_mo = ((M_mo-M_m_imp)*FeO_E + M_m_imp*FeO_imp)/M_mo;
         
         dMp = min(dMp_temp*eff(k), M_mo);    %silicate mass eq'd with given efficiency
         
@@ -173,7 +168,11 @@ for k = 1:length(eff)          % for each efficiency
         end
         
         % final r from mixing redox'd MO with whole mantle
-        r_m_mix = (M_mo*r_m(idx) + (M_m_post-M_mo)*r_0)/M_m_post;
+        r_m_mix = (M_mo*FeO_mo*r_m(idx)+(M_m-M_mo)*FeO_E*r_0)/(M_mo*FeO_mo + (M_m_post-M_mo)*FeO_E);
+        %disp([num2str(r_m(idx)), ' before and ', num2str(r_m_mix), ' after mixing'])
+
+        FeO_f = (M_mo*FeO_mo+(M_m_post-M_mo)*FeO_E)/(M_m_post);
+        %disp(['FeO wt% = ', num2str(FeO_f)])
 
         effvsd_nomix(j,k) = r_m(idx);
         effvsd_mix(j,k) = r_m_mix;
@@ -201,7 +200,7 @@ figure('Position', [200 200 1000 400]);
 subplot(1,2,1)
 hold on
 box on
-[C,h] = contour(P_late/1e9, log10(eff), effvsd_mix'-0.35/8.1, c, 'LineWidth', 2);
+[C,h] = contour(P_late/1e9, log10(eff), effvsd_mix'-0.35/8.2, c, 'LineWidth', 2);
 clabel(C,h,ct, 'LabelSpacing', 200)
 xlabel('Pressure (GPa)')
 ylabel('log(Efficiency)')
@@ -213,7 +212,7 @@ hold on
 box on
 colormap cool
 colormap(flipud(colormap));
-contour(P_late/1e9, log10(eff), effvsd_nomix'-0.35/8.1, c, 'LineWidth', 2, 'ShowText', 'on', 'TextList', ct, 'LabelSpacing', 300)
+contour(P_late/1e9, log10(eff), effvsd_nomix'-0.35/8.2, c, 'LineWidth', 2, 'ShowText', 'on', 'TextList', ct, 'LabelSpacing', 300)
 xlabel('Pressure (GPa)')
 ylabel('log(Efficiency)')
 xlim([P_min/1e9 100])

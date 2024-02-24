@@ -2,6 +2,7 @@
 % Aug 31, 2023
 
 % Overall function to determine geotherm for magma ocean
+% Used originally to test different methods to calculate MO Tp
 
 
 clear;

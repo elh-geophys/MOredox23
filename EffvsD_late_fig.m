@@ -53,37 +53,28 @@ if reset == 1
     
 end
 
-mix = H04_1st_mix - 0.35/8.1;       %0.35% reduction in FeO1.5 after Cr oxi with 8.1% FeO*
-nomix = H04_1st_nomix - 0.35/8.1;
-r_0_idx = 1;                            %for r_0 to choose
-title_name = "H04: 1st Percentile";
-letter = "a";
+mix = H04_50th_mix - 0.35/8.2;       %0.35% reduction in FeO1.5 after Cr oxi with 8.1% FeO*
+nomix = H04_50th_nomix - 0.35/8.2;
+r_0_idx = 4;                            %for r_0 to choose
+title_name = "H04: 50th Percentile";
+letter = "d";
 
 %Fe3/sumFe value AFTER GI
 %Tconst method
          % 1st     5th     25th    50th
-    %r_0 = [0.0862, 0.0949, 0.1078, 0.1177];   %H04
-    %r_0 =      [0.0949, 0.1030, 0.1134];      %N21 modeling
+    %r_0 = [0.0866,0.0963,0.1087,0.1191];     %H04 modeling
 %Pmo method
-    r_0 = [0.0718, 0.0845, 0.1085, 0.1272];   %H04
-    %r_0 =      [0.0918, 0.1040, 0.1194];      %N21
-%U2Q method
-    %r_0 =      [0.0507, 0.0641, 0.0808];      %H04
-    %r_0 =      [0.0901, 0.1033, 0.1189];      %N21
+    r_0 = [0.0653,0.0796,0.1073,0.1278];     %H04
     
-r_0 = r_0(r_0_idx)-0.35/8.1;
-     
+r_0 = r_0(r_0_idx)-0.35/8.2;
+
+% back when I used to do shades of gray:
 %       0.2-0.3         0.3-0.4         0.4-0.5         0.5-0.6         rest
 %map = [0.88 0.88 0.88; 0.82 0.82 0.82; 0.78 0.78 0.78; 0.72 0.72 0.72; 1 1 1];
-
-%map = [0.88 0.88 0.88; 0.82 0.82 0.82];
-%map = [0.82 0.82 0.82; 0.78 0.78 0.78];
-%map = [0.88 0.88 0.88; 0.82 0.82 0.82; 0.78 0.78 0.78];
-%map = [0.82 0.82 0.82; 0.78 0.78 0.78; 0.72 0.72 0.72; 1 1 1];
-%map = [0.72 0.72 0.72; 1 1 1; 1 1 1; 1 1 1; 1 1 1];
-%map = [0.82 0.82 0.82; 0.78 0.78 0.78; 0.72 0.72 0.72]; 
-%map = [0.78 0.78 0.78; 0.72 0.72 0.72];         
-map = [0.82 0.82 0.82; 1 1 1];          % chosen mix contour colors
+        
+%map = [0.82 0.82 0.82; 1 1 1];          % chosen mix contour colors
+%map = [1 1 1; 0.82 0.82 0.82];
+map = [1 1 1];
 
 map_neg = [0 0 0];
 
@@ -134,9 +125,9 @@ ax1.YTickLabel = {'1%' '' '' '' '' '' '' '' '' ...
     '100%'};
 text(42, -1.87, "r_0=" + round(r_0,3), 'FontWeight', 'bold')
 text(47, -1.70, letter, 'FontWeight', 'bold', 'FontSize', 20)
-annotation('textarrow',[0.75 0.72],[0.44 0.32])
-text(40, -1.5,'reduced MO','FontSize',8)
-annotation('textarrow',[0.76 0.79],[0.48 0.60])
-text(40, -0.7,'oxidized MO','FontSize',8)
+% annotation('textarrow',[0.75 0.69],[0.53 0.41])
+% text(37, -1.3,'reduced MO','FontSize',8)
+% annotation('textarrow',[0.76 0.82],[0.55 0.67])
+% text(36, -0.6,'oxidized MO','FontSize',8)
 title(ax1, title_name)
 

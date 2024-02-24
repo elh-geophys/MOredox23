@@ -1,5 +1,6 @@
 % EL
 % March 2023
+% Updated Feb 22, 2024
 %
 % Testing Eqn 21 of Hirschmann 2022.  Input T, P, dIW, and compSheet (sheet
 % for composition in MoleWeights.xlsx)
@@ -8,11 +9,10 @@
 clear;
 
 % Values to test
-T = 2324;
-P = 8.8;
-dIW = -1.46;             %metal-silicate eq value to test
-%logfO2 = 7.07254267;        %logfO2 to test, comment out line 73
-compSheet = 'ImpLate';
+T = 2033;
+P = 1.0;
+dIW = -4.43;             %metal-silicate eq value to test
+compSheet = 'H04_E';
 
 % Fitting parameters from Table 1
 R = 8.314;
@@ -33,9 +33,10 @@ y9 = -1156.86;  %SiO2*MgO
 
 % read %wt and mol wt data
 % SiO2 TiO2 Al2O3 Cr2O3 FeO* MnO MgO NiO CaO Na2O K2O P2O5
-data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', compSheet);
-OxiWts = data(:,2);
-OxiMolW = data(:,3);
+CompEarth_data = readmatrix('\db\Compositions.xlsx', 'Sheet', compSheet);
+OxiMolW = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11', 'Range', 'B2:B13');
+
+OxiWts = CompEarth_data(:,end);
 
 tempMol = OxiWts./OxiMolW;
 MolSum = sum(tempMol);
@@ -51,7 +52,7 @@ Gb_term = Cp/(R*log(10)) * (1 - T0./T - log(T./T0));
 % Work term
 % Using pre-calculated PV term for the geotherm
 % This is = integration/(R*T) so still need to 1/ln(10) for H22 Eqn 21
-PV_table = readmatrix('\db\PVcalc.xlsx');
+PV_table = readmatrix('\db\PVcalc_old.xlsx');
 P_test = PV_table(:,1);
 T_test = [2000, 2500, 3000, 3500, 4000, 4500];
 PV_test = PV_table(:,2:end);
@@ -80,17 +81,4 @@ logFeOxiRatio = fO2_term - Gb_term - PV_term + ActRatios_term;
 %convert to Fe3/Fe_total
 FeRatio = 1./(1+(1./10.^(logFeOxiRatio)));
 
-% writematrix(P, 'r_eq.xlsx', 'Sheet', 'A19', 'Range', 'A1')
-% writematrix(FeRatio, 'r_eq.xlsx', 'Sheet', 'A19', 'Range', 'G1') 
-
-% figure(1);
-% hold on
-% box on
-% yyaxis left
-% colororder('default')
-% x = [0.03 0.045];       %shaded region
-% y = [135 135];
-% area(x,y, 'FaceColor', [0.75 0.75 0.75])
-% r5 = plot(FeRatio, P, "Color", "#77AC30", "LineWidth", 1.5);
-% xlabel('Fe^{3+}/\SigmaFe Ratio')
-% ylabel('Pressure (GPa)')
+disp(['Fe3+/sumFe =', num2str(FeRatio)])

@@ -5,12 +5,13 @@
 % P, as a constant temperature. Using Python code given to me by J. Deng, I
 % have generated an excel file with dV as a function of P at constant
 % temperatures (dVvsP.xlxs). Using this, we can interpolate/extrapolate
-% values for any given P and T to calculate int(PdV). This function takes
-% in a geotherm (T as function of P) and calculates PV. See test script
-% modPVcalc.m for more information.
+% values for any given P and T to calculate int(PdV). This is done by PVintegration.m
+% % This function takes in a geotherm (T as function of P) and determine
+% int(PV)/RT from interp/extrap of data from PV_calc.xlsx.
 %
 % INPUTS:   T       [K] geotherm temperature, 1D array
 %           P       [Pa] geotherm pressure, 1D array
+%           PVdata  [] taken from PV_calc.xlsx
 %
 % OUTPUTS:  PV      [] integration term as int(PdV)/RT
 %

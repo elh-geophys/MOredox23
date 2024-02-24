@@ -1,10 +1,11 @@
 % EL
 % August 2022
-% Updated 2023-09-29
+% Updated 2024-02-21
 %
 % Produce Monte Carlo results with varying efficiency and depth for each
 % impact during accretion.
-% Uses getRainRatio.m
+%
+% Uses getRainRatio_XXX.m
 
 clear;
 
@@ -14,17 +15,20 @@ tic
 model = 4;                  %accretion models: 4 = H04, 5 = N21  (using a continous model like 1-3 will take a LONG time :) )
 r_0 = 0.004;                %initial Fe3+/sumFe
 N = 1000;                   %number of MC samples
-compSheet_early = 'EarthEarly';     %composition to use
-compSheet_late = 'EarthLate';       %keep same as early if no change wanted
-Tp_type = 'constant';               %chooose method to calculate Tp, either 'Pmo', 'U2Q', or 'constant'
+compSheet_earth = 'H04_E';           %sheet in Compositions.xlsx to use for composition
+compSheet_imp = 'H04_imp';
+Tp_type = 'Pmo';               %chooose method to calculate Tp, either 'Pmo', 'U2Q', or 'constant'
     Tp_const = 3500;                %[K] Tp for 'constant' method
 dP = 0.5e9;
 
-sheetOut = 'H04_Tconst';            %sheet name to record data
+sheetOut = 'H04_Pmo';            %sheet name to record data
 fileOut = 'Rain_MC.xlsx';    % file name
 write = 1;                   %1 or 0, to write to file
 
 % ---------------------------------------------------------------------- %
+
+% READ DATA SHEETS
+CompImp_data = readmatrix('\db\Compositions.xlsx', 'Sheet', compSheet_imp);
 
 % CONSTANTS
 M_E_0 = 5.97e24;        %[kg] present day mass of Earth
@@ -58,15 +62,8 @@ M_m_imp = M_imp*Si_ratio;       % [kg] approximate proportion silicate mass of i
 
 %estimated Fe3+/sumFe for impactor, based on Rubie+2011, Supp. Table 3a
 %determined endpoints by using test_getSingleFeRatio_H22.m
-r_imp = zeros(1, length(M_imp));
-for i = 1:length(M_imp)
-    if Accr_model(i+1) <= 0.6
-        % so GI of N21 model will have the higher value
-        r_imp(i) = 0.004;                   
-    else
-        r_imp(i) = 0.0122;
-    end
-end
+r_imp = CompImp_data(3,:);
+FeO_imp = CompImp_data(2,:);
 
 % Use half impactor core mass between pre- and post-impact to determine R_c at impact
 % Use entire mantle mass for chemical mixing post-impact
@@ -107,7 +104,7 @@ switch Tp_type
                disp(['Calculating trial ', num2str(i)]);
             end
             [r_m_Dt(i,:),~,~] = getRainRatio_Pmo(P_cmb, P_min, dP, r_0,Accr_model, ...
-                dMp_temp, compSheet_early, compSheet_late, r_imp, rho_m, rho_c_post, M_m, M_m_imp, R_E_post, R_c_post);
+                dMp_temp, compSheet_earth, FeO_imp, r_imp, rho_m, rho_c_post, M_m, M_m_imp, R_E_post, R_c_post);
         end
     case 'U2Q'
         for i = 1:N
@@ -115,7 +112,7 @@ switch Tp_type
                disp(['Calculating trial ', num2str(i)]);
             end
             [r_m_Dt(i,:),~,~] = getRainRatio_U2Q(P_cmb, P_min, dP, r_0, Accr_model, ...
-                dMp_temp, compSheet_early, compSheet_late, r_imp, rho_m, rho_c_post, M_E, M_m, M_c, M_imp, M_m_imp, R_E, ...
+                dMp_temp, compSheet_earth, FeO_imp, r_imp, rho_m, rho_c_post, M_E, M_m, M_c, M_imp, M_m_imp, R_E, ...
                 R_E_post, R_c_post, R_imp);
         end
     case 'constant'
@@ -124,7 +121,7 @@ switch Tp_type
                disp(['Calculating trial ', num2str(i)]);
             end
             [r_m_Dt(i,:),~,~] = getRainRatio_constT(P_cmb, P_min, dP, r_0, Accr_model, ...
-                dMp_temp, compSheet_early, compSheet_late, r_imp, rho_m, rho_c_post, M_m, M_m_imp, R_E_post, R_c_post, Tp_const);
+                dMp_temp, compSheet_earth, FeO_imp, r_imp, rho_m, rho_c_post, M_m, M_m_imp, R_E_post, R_c_post, Tp_const);
         end
     otherwise
         disp('Could not calculate Tp based on input Tp_type')

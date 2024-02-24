@@ -11,19 +11,21 @@ clear;
 
 Tp = [2500 3000 3500 4000 4500];
 P = 0:0.5e9:120e9;
-F = [0.1 0.5 1];                                   %the mass fraction of Earth
-compSheet_early = 'EarthEarly';          %sheet in MoleWeights.xlsx to use for composition
-compSheet_late = 'EarthLate';
+compSheet_earth = 'H04_E';          %sheet in MoleWeights.xlsx to use for composition
+
 
 % READ DATA SHEETS
 PV_data = readmatrix('/db/PVcalc.xlsx');
 Adiabat_data = readmatrix('\db\geotherms_combo.xlsx');
-CompEarly_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', compSheet_early);
-CompLate_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', compSheet_late);
+CompEarth_data = readmatrix('\db\Compositions.xlsx', 'Sheet', compSheet_earth);
+MolW_byM_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11', 'Range', 'B2:B13');
+MolW_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11', 'Range', 'C2:C13');
+
+CompEarth = CompEarth_data(:,end);
 
 Tad = zeros(length(P), length(Tp));
 PV = zeros(length(P), length(Tp));
-r_eq = zeros(length(P), length(Tp), length(F));
+r_eq = zeros(length(P), length(Tp));
 
 for i = 1:length(Tp)
 
@@ -33,10 +35,7 @@ for i = 1:length(Tp)
     PV(:,i) = calcPV(Tad(:,i),P,PV_data);
 
     % CALCULATE Fe3+/sumFe EQUILIBRIUM RATIO AS FUNCTION OF P,T,dIW
-    for j = 1:length(F)
-        [r_eq(:,i,j),dIW] = calcFeRatio(Tad(:,i), P, F(j), PV(:,i), CompEarly_data, CompLate_data);
-        disp([num2str(round(Tp(i))), 'K and ', num2str(dIW)])
-    end
+    [r_eq(:,i),dIW] = calcFeRatio(Tad(:,i), P, PV(:,i), CompEarth, MolW_data, MolW_byM_data);
     
 end
     
@@ -51,8 +50,8 @@ r_low_f = 0.02;
 r_high_f = 0.06;
 
 %range for pre-Cr oxidation with 8.1% FeO*
-r_low_0 = r_low_f + 0.35/8.1;
-r_high_0 = r_high_f + 0.35/8.1;
+r_low_0 = r_low_f + 0.35/8.2;
+r_high_0 = r_high_f + 0.35/8.2;
     
 figure('Position', [30 30 1000 500]);
 subplot(1,2,1)
@@ -88,21 +87,21 @@ y = [135 135];
 area(x,y, 'FaceColor', [0.87 0.87 0.87])
 x_0 = [r_low_0 r_high_0];
 area(x_0,y, 'FaceColor', [0.75 0.75 0.75])
-plot(r_eq(:,1,1), P/1e9, ':', 'Color', "#0072BD", "LineWidth", 1);
-plot(r_eq(:,2,1), P/1e9, ':', "Color", "#D95319", "LineWidth", 1);
-plot(r_eq(:,3,1), P/1e9, ':', "Color", "#EDB120", "LineWidth", 1);
-plot(r_eq(:,4,1), P/1e9, ':', "Color", "#7E2F8E", "LineWidth", 1);
-plot(r_eq(:,5,1), P/1e9, ':', "Color", "#77AC30", "LineWidth", 1);
-plot(r_eq(:,1,2), P/1e9, '--', 'Color', "#0072BD", "LineWidth", 1);
-plot(r_eq(:,2,2), P/1e9, '--', "Color", "#D95319", "LineWidth", 1);
-plot(r_eq(:,3,2), P/1e9, '--', "Color", "#EDB120", "LineWidth", 1);
-plot(r_eq(:,4,2), P/1e9, '--', "Color", "#7E2F8E", "LineWidth", 1);
-plot(r_eq(:,5,2), P/1e9, '--', "Color", "#77AC30", "LineWidth", 1);
-plot(r_eq(:,1,3), P/1e9, 'Color', "#0072BD", "LineWidth", 1.5);
-plot(r_eq(:,2,3), P/1e9, "Color", "#D95319", "LineWidth", 1.5);
-plot(r_eq(:,3,3), P/1e9, "Color", "#EDB120", "LineWidth", 1.5);
-plot(r_eq(:,4,3), P/1e9, "Color", "#7E2F8E", "LineWidth", 1.5);
-plot(r_eq(:,5,3), P/1e9, "Color", "#77AC30", "LineWidth", 1.5);
+% plot(r_eq(:,1,1), P/1e9, ':', 'Color', "#0072BD", "LineWidth", 1);
+% plot(r_eq(:,2,1), P/1e9, ':', "Color", "#D95319", "LineWidth", 1);
+% plot(r_eq(:,3,1), P/1e9, ':', "Color", "#EDB120", "LineWidth", 1);
+% plot(r_eq(:,4,1), P/1e9, ':', "Color", "#7E2F8E", "LineWidth", 1);
+% plot(r_eq(:,5,1), P/1e9, ':', "Color", "#77AC30", "LineWidth", 1);
+% plot(r_eq(:,1,2), P/1e9, '--', 'Color', "#0072BD", "LineWidth", 1);
+% plot(r_eq(:,2,2), P/1e9, '--', "Color", "#D95319", "LineWidth", 1);
+% plot(r_eq(:,3,2), P/1e9, '--', "Color", "#EDB120", "LineWidth", 1);
+% plot(r_eq(:,4,2), P/1e9, '--', "Color", "#7E2F8E", "LineWidth", 1);
+% plot(r_eq(:,5,2), P/1e9, '--', "Color", "#77AC30", "LineWidth", 1);
+plot(r_eq(:,1), P/1e9, 'Color', "#0072BD", "LineWidth", 1.5);
+plot(r_eq(:,2), P/1e9, "Color", "#D95319", "LineWidth", 1.5);
+plot(r_eq(:,3), P/1e9, "Color", "#EDB120", "LineWidth", 1.5);
+plot(r_eq(:,4), P/1e9, "Color", "#7E2F8E", "LineWidth", 1.5);
+plot(r_eq(:,5), P/1e9, "Color", "#77AC30", "LineWidth", 1.5);
 
 xlabel('Fe^{3+}/\SigmaFe Ratio')
 xlim([0 0.3])
@@ -118,3 +117,44 @@ text(0.27, 5, 'b', 'FontSize', 20, 'FontWeight', 'bold')
 
 hold off
 
+
+% figure(2);              % simplified Fe Ratio graph for AGU poster
+% hold on
+% box on
+% colororder('default')
+% % x = [r_low_f r_high_f];       %shaded region
+% % y = [135 135];
+% % area(x,y, 'FaceColor', [0.87 0.87 0.87])
+% % x_0 = [r_low_0 r_high_0];
+% % area(x_0,y, 'FaceColor', [0.75 0.75 0.75])
+% % plot(r_eq(:,1,1), P/1e9, ':', 'Color', "#0072BD", "LineWidth", 1);
+% % plot(r_eq(:,2,1), P/1e9, ':', "Color", "#D95319", "LineWidth", 1);
+% % plot(r_eq(:,3,1), P/1e9, ':', "Color", "#EDB120", "LineWidth", 1);
+% % plot(r_eq(:,4,1), P/1e9, ':', "Color", "#7E2F8E", "LineWidth", 1);
+% % plot(r_eq(:,5,1), P/1e9, ':', "Color", "#77AC30", "LineWidth", 1);
+% % plot(r_eq(:,1,2), P/1e9, '--', 'Color', "#0072BD", "LineWidth", 1);
+% % plot(r_eq(:,2,2), P/1e9, '--', "Color", "#D95319", "LineWidth", 1);
+% % plot(r_eq(:,3,2), P/1e9, '--', "Color", "#EDB120", "LineWidth", 1);
+% % plot(r_eq(:,4,2), P/1e9, '--', "Color", "#7E2F8E", "LineWidth", 1);
+% % plot(r_eq(:,5,2), P/1e9, '--', "Color", "#77AC30", "LineWidth", 1);
+% r1 = plot(r_eq(:,1,3), P/1e9, 'Color', "#0072BD", "LineWidth", 1.5);
+% r2 = plot(r_eq(:,2,3), P/1e9, "Color", "#D95319", "LineWidth", 1.5);
+% r3 = plot(r_eq(:,3,3), P/1e9, "Color", "#EDB120", "LineWidth", 1.5);
+% r4 = plot(r_eq(:,4,3), P/1e9, "Color", "#7E2F8E", "LineWidth", 1.5);
+% r5 = plot(r_eq(:,5,3), P/1e9, "Color", "#77AC30", "LineWidth", 1.5);
+% 
+% legend([r1 r2 r3 r4 r5], "2500 K", "3000 K", "3500 K", "4000 K", "4500 K", 'Location', 'northeast')
+% 
+% xlabel('Fe^{3+}/\SigmaFe Ratio')
+% ylabel('Pressure (GPa)')
+% xlim([0 0.3])
+% xticks([0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3])
+% ylim([0 120])
+% yticks([0, 20, 40, 60, 80, 100, 120])
+% yticklabels(["0","20","40","60","80","100","120","135"])
+% ax = gca;
+% ax.YDir = 'reverse';
+% ax.YColor = [0.15 0.15 0.15];
+% ax.Layer = 'top';
+% 
+% hold off

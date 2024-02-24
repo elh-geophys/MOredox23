@@ -42,13 +42,13 @@ function [M_eq] = calcEqSi(M_c_imp, Eq_type)
         case 'cyl'                  %cylindrical tail or ring model
             %mass flow rate J = A*v*rho
             J = 2*pi*rho_Si*D*r_d;          %[kg/s] "droplet tail" mass flow rate, based on A=pi*h^2, h=sqrt(2Dr/v)
-            disp(['Cyl mass flux = ', num2str(J*dt)])
+            %disp(['Cyl mass flux = ', num2str(J*dt)])
             % amount of silicate mass equilibriated in time interval dt (or tau) from iron "rainfall"
             M_eq = J*dt*N_d;                
             
         case 'sph'                   %spherical shell
             J = 2*pi*r_d*h*v_d*rho_Si/2;    %[kg/s] "droplet ring" mass flow rate, divide by 2 for diffusion gradient
-            disp(['Sph mass flux = ', num2str(J*tau)])
+            %disp(['Sph mass flux = ', num2str(J*tau)])
             M_eq = J*tau*N_d;               
             
         otherwise

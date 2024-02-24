@@ -12,7 +12,7 @@
 clear;
 
 fileOut = 'PVcalc.xlsx';
-write = 1;
+write = 0;
 
 Tmin = 2000;
 Tmax = 5500;
@@ -36,7 +36,7 @@ for j = 1:length(T)
         dV_q = zeros(i,1);
         for k = 1:i
             if P_test(k) < 0.5e9 && T(j) <= 4000
-                dV_q(k) = interp1(T_test(1:5), dV_test(k,1:5),T(j),'pchip');
+                dV_q(k) = interp1(T_test(1:5), dV_test(k,1:5),T(j),'pchip');   %these are for cases where dV data is null
             elseif P_test(k) < 10e9 && T(j) <= 4500
                 dV_q(k) = interp1(T_test(1:6), dV_test(k,1:6),T(j),'pchip');
             else
@@ -65,7 +65,6 @@ Tp = 3500;
 
 dP = 0.5e9;
 P = (0:dP:126e9)';
-
 
 Tad = getMOAdiabat(Tp,P,Adiabat_data);
 

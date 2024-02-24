@@ -1,8 +1,5 @@
 % EL
 % August 2023
-% Hating my life because this code could have been done a year ago but JK
-% never said anything about it to me and even though it's in the methods.
-% :)
 
 % Modeling accretion of growing Earth
 % Pressure-depth dependence and geotherm

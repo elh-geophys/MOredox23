@@ -11,7 +11,7 @@ clear;
 n = 20;         %[] number of convection cells
 Tm = 4500;      %[K] mantle potential temperature
 compSheet = 'Deng20';           %sheet in MoleWeights.xlsx to use for composition
-Pbase = 25e9;    %[GPa] base of MO (25, 50, 75, 100, 135)
+Pbase = 135e9;    %[GPa] base of MO (25, 50, 75, 100, 135)
 dP = 0.5e9;         %[Pa] increments of P
 
 write = 1;
@@ -23,9 +23,13 @@ PV_data = readmatrix('/db/PVcalc.xlsx');
 Adiabat_data = readmatrix('\db\geotherms_combo.xlsx');
 Comp_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', compSheet);
 
+Comp = Comp_data(:,2);
+OxiMolW_byM = Comp_data(:,3);
+OxiMolW = Comp_data(:,4);
+
 Tad = getMOAdiabat(Tm,P, Adiabat_data);
 PV = calcPV(Tad,P,PV_data);
-[r_eq] = calcFeRatio(Tad, P, 1, PV, Comp_data, Comp_data);      %for constant comp data, use the same for early/late
+[r_eq,dIW] = calcFeRatio(Tad, P, PV, Comp, OxiMolW, OxiMolW_byM);      %for constant comp data, use the same for early/late
 r_eq_base = r_eq(end);
 
 % set the time interval

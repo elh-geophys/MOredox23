@@ -1,6 +1,6 @@
 % EL
 % June/July 2022
-% Updated 2023-10-06
+% Updated 2023-02-24
 %
 % Determine the evolution of Fe ratio and logfO2 by large convection
 % cell mixing.
@@ -23,9 +23,13 @@ PV_data = readmatrix('/db/PVcalc.xlsx');
 Adiabat_data = readmatrix('\db\geotherms_combo.xlsx');
 Comp_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', compSheet);
 
+Comp = Comp_data(:,2);
+OxiMolW_byM = Comp_data(:,3);
+OxiMolW = Comp_data(:,4);
+
 Tad = getMOAdiabat(Tm,P, Adiabat_data);
 PV = calcPV(Tad,P,PV_data);
-[r_eq] = calcFeRatio(Tad, P, 1, PV, Comp_data, Comp_data);      %for constant comp data, use the same for early/late
+[r_eq,dIW] = calcFeRatio(Tad, P, PV, Comp, OxiMolW, OxiMolW_byM);
 r_eq_cmb = r_eq(end);
 
 % set the time interval

@@ -1,30 +1,21 @@
 % EL
 % Sept 4, 2023
 %
-% Function to get the equilibrium (given composition/dIW) Fe3+/sumFe value as a
+% Function to get the equilibrium (given dIW) Fe3+/sumFe value as a
 % function of pressure, temperature (goetherm).
 %
 % INPUTS:   T           [K] geotherm temperature, scalar(?) or 1D array
 %           P           [Pa] corresonding P for geotherm, scalar(?) or 1D array
-%           F           [] fraction of Earth mass from present, estimated from Rubie+2011 Fig 3
+%           dIW         [] dIW value for oxygen fugacity
 %           PV_term     [] calculated int(PV)/RT from calcPV.m, scalar(?) or 1D array
-%           compEarth_data   data sheet for wt%
-%           OxiMolW          data for molecular weights
-%           OxiMolW_byM      data for molecular weights as 'per metal ion'
+%           OxiWts      [wt%] wt % for each compositional component
+%           OxiMolW     [g/mol] mole weight for each component
+%                 same order as compsheets: SiO2 TiO2 Al2O3 Cr2O3 FeO* MnO MgO NiO CaO Na2O K2O P2O5
 %
 % OUTPUTS:  FeRatio [] Fe3+/sumFe as a function of P, T, and dIW
 %
 
-function [FeRatio,dIW] = calcFeRatio(T, P, PV_term, CompEarth_data, OxiMolW, OxiMolW_byM)
-
-    % estimate dIW value for Earth, from Rubie+11 composition data, Table s3a
-    tempMol = CompEarth_data./OxiMolW;
-    MolSum = sum(tempMol,1);    %total moles
-    Mol = tempMol./MolSum;     %mole fraction
-    FeO_Mol = Mol(5,:);      %extract FeO mole fraction
-    Fe_Mol = 0.78;              %estimated mol fraction for Fe in metal
-    
-    dIW = 2*log10((1.148*FeO_Mol + 1.319*FeO_Mol.^2)/Fe_Mol);     %with Rubie+11 param to X for wustite
+function [FeRatio] = calcFeRatio_byIW(T, P, dIW, PV_term, OxiWts, OxiMolW)
 
     % Fitting parameters from Table 1 of Hirschmann 2021
     R = 8.314;
@@ -43,7 +34,9 @@ function [FeRatio,dIW] = calcFeRatio(T, P, PV_term, CompEarth_data, OxiMolW, Oxi
     y8 = -1245.09;  %SiO2*Al2O3
     y9 = -1156.86;  %SiO2*MgO
 
-    tempMol = CompEarth_data./OxiMolW_byM;          %H22 eqn based on 'per metal ion'
+    % read %wt and mol wt data
+    % SiO2 TiO2 Al2O3 Cr2O3 FeO* MnO MgO NiO CaO Na2O K2O P2O5
+    tempMol = OxiWts./OxiMolW;
     MolSum = sum(tempMol);
     Mol = tempMol/MolSum;
 

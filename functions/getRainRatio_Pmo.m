@@ -1,9 +1,7 @@
 % EL
 % Original: Aug 2022
-% Updated: Sept 2023 
-%      - changed such that efficiency sampling is linear from 0-100%
-%      - changed with new accretion modeling
-%      - optimized time by moving reading spreadsheets outside of main loop
+% Updated: Feb 2024
+%      - updated FeO tracking and dIW
 %
 % Function for getting metal rain ratio with varying depth and
 % efficiencies.  Use for mass sampling.
@@ -20,8 +18,8 @@
 %   Accr_model    [] earth mass growth model; j length array
 %   dMp_temp      [kg] the potential mass equilibrated during time interval dt; 
 %                       j-1 length array
-%   compSheet_early   [] sheet to use for Earth composition at time t=0
-%   compSheet_late    [] sheet to use for Earth composition at end of accretion
+%   compSheet_earth   [] sheet to use for Earth composition from Compositions.xlsx
+%   FeO_imp           [] FeO from the impactor, from Composititions.xlsx
 %   r_imp         [] Fe3+/sumFe ratio for impactor, j length array
 %   rho_m         [kg/m^3] density of mantle, j length array
 %   M_m           [kg] mass of mantle, j length array
@@ -31,7 +29,7 @@
 
 
 function [r_m_Dt, eff_out, P_mo_out] = getRainRatio_Pmo(P_cmb, P_min, dP, r_0, Accr_model, ...
-        dMp_temp, compSheet_early, compSheet_late, r_imp, rho_m, rho_c_post, M_m, M_m_imp, R_E_post, R_c_post)
+        dMp_temp, compSheet_earth, FeO_imp, r_imp, rho_m, rho_c_post, M_m, M_m_imp, R_E_post, R_c_post)
     
     P_cmb_max = round(P_cmb(end),-9);
     P_length_max = P_cmb_max/dP+1;             %to go by dP and +1 for end points :)
@@ -46,9 +44,12 @@ function [r_m_Dt, eff_out, P_mo_out] = getRainRatio_Pmo(P_cmb, P_min, dP, r_0, A
     
     PV_data = readmatrix('/db/PVcalc.xlsx');
     Adiabat_data = readmatrix('\db\geotherms_combo.xlsx');
-    CompEarly_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', compSheet_early);
-    CompLate_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', compSheet_late);
+    CompEarth_data = readmatrix('\db\Compositions.xlsx', 'Sheet', compSheet_earth);
+    MolW_byM_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11', 'Range', 'B2:B13');
+    MolW_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11', 'Range', 'C2:C13');
     
+    FeO_E = CompEarth_data(5,:);
+
     for j = 1:length(Accr_model)-1      % earth evolution time
 
         if round(dMp_temp(j),3) == 0    % NOT AN IMPACT
@@ -78,7 +79,7 @@ function [r_m_Dt, eff_out, P_mo_out] = getRainRatio_Pmo(P_cmb, P_min, dP, r_0, A
             PV = calcPV(Tad,P,PV_data);
 
             % CALCULATE Fe3+/sumFe EQUILIBRIUM RATIO AS FUNCTION OF P,T,dIW
-            [r_eq,~] = calcFeRatio(Tad, P, Accr_model(j+1), PV, CompEarly_data, CompLate_data);
+            [r_eq,~] = calcFeRatio(Tad, P, PV, CompEarth_data(:,j+1), MolW_data, MolW_byM_data);
             
             % METAL RAIN CALCULATION FOR THIS TIME STEP
             R = linspace(R_c_post(j),R_E_post(j),1000);
@@ -87,8 +88,10 @@ function [r_m_Dt, eff_out, P_mo_out] = getRainRatio_Pmo(P_cmb, P_min, dP, r_0, A
             M_mo = rho_m(j+1) * 4/3*pi*(R_E_post(j)^3 - R_mo^3);        %approximate mass of spherical shell MO
         
             % initial Fe ratio of mantle after mixing previous silicate with impactor silicate
-            r_m(1) = ((M_mo-M_m_imp(j))*r_m_Dt(j)+M_m_imp(j)*r_imp(j))/(M_mo);
-       
+            %r_m(1) = ((M_mo-M_m_imp(j))*r_m_Dt(j)+M_m_imp(j)*r_imp(j))/(M_mo);
+            r_m(1) = ((M_mo-M_m_imp(j))*FeO_E(j)*r_m_Dt(j)+M_m_imp(j)*FeO_imp(j)*r_imp(j))/((M_mo-M_m_imp(j))*FeO_E(j) + M_m_imp(j)*FeO_imp(j));
+            FeO_mo = ((M_mo-M_m_imp(j))*FeO_E(j) + M_m_imp(j)*FeO_imp(j))/M_mo;
+            
             dMp = min(dMp_temp(j)*eff, M_mo);            %silicate mass eq'd with given efficiency, if eq'd mass > spherical shell mass, take all MO mass eq'd
 
             for i = 1:length(P)          % droplets falling through mantle
@@ -100,8 +103,9 @@ function [r_m_Dt, eff_out, P_mo_out] = getRainRatio_Pmo(P_cmb, P_min, dP, r_0, A
             end
 
             % final r from mixing redox'd MO with whole mantle
-            r_m_Dt(j+1) = (M_mo*r_m(idx) + (M_m(j+1)-M_mo)*r_m_Dt(j))/(M_m(j+1));
-            
+            %r_m_Dt(j+1) = (M_mo*r_m(idx) + (M_m(j+1)-M_mo)*r_m_Dt(j))/(M_m(j+1));
+            r_m_Dt(j+1) = (M_mo*FeO_mo*r_m(idx)+(M_m(j+1)-M_mo)*FeO_E(j)*r_m_Dt(j))/(M_mo*FeO_mo + (M_m(j+1)-M_mo)*FeO_E(j));
+           
             r_m = r_m*0;                % reset r_m
             
         end
