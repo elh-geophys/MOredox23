@@ -2,10 +2,9 @@
 
 MATLAB code and data files for manuscript "Impact-driven redox stratification of Earth's mantle"
 
-Estefania Larsen, Yale University -- estefania.larsen@yale.edu -- Summer 2022-Fall 2023
+Estefania Larsen, Yale University -- estefania.larsen@yale.edu -- Summer 2022-Spring 2024
 
-This code produces all data and figures from the manuscript and is a standalone repository. This code was originally written with MATLAB 2021a, but should work
-with v2022. It has not been tested with v2023. MATLAB's Optimization Toolbox may be necessary for some scripts to run.
+This code produces all data and figures from the manuscript and is a standalone repository. This code was originally written with MATLAB 2021a, but also works in v2023b. MATLAB's Optimization Toolbox may be necessary for some scripts to run.
 
 This code is organized such that any .m script files in the main will work alone, but may access either the /functions folder or the /db folder.
 Scripts without ...fig ending will generate the data necessary, with a line to write to file. There is sometimes a figure output in these files for testing purposes.
