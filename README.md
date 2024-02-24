@@ -26,4 +26,4 @@ regarding the code should be directed to me (E. Larsen).
 "We stand on the shoulders of giants."
 Special thanks to Jie Deng and Marc Hirschmann, whose work before me was instrumental to this project.
 Also, thank you to a vast group of other scientists involved in magma ocean geodynamics and geochemistry... including, but not limited to, D. C. Rubie, D. J. Frost, 
-S. Aulbach, V. Stagno, R. Degueun, M. Landeau, P. Olson, C. McCammon, C. O'Neill, V. Solomatov, and D. J. Stevenson.
+S. Aulbach, V. Stagno, R. Degueun, M. Landeau, P. Olson, C. McCammon, H. StC. O'Neill, V. Solomatov, and D. J. Stevenson.
