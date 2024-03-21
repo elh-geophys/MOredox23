@@ -1,9 +1,9 @@
 % EL
 % Feb 2023
-% Updated Sept 2023
+% Updated March 2024
 
 % Figure of P vs T and P vs FeRatio
-% geotherm data as given by Miyazaki & Korenaga 2020 
+% geotherm data as given by Miyazaki & Korenaga 2019 
 % r_eq values calculated from calcFeRatio.m
 
 
@@ -11,7 +11,7 @@ clear;
 
 Tp = [2500 3000 3500 4000 4500];
 P = 0:0.5e9:120e9;
-compSheet_earth = 'H04_E';          %sheet in MoleWeights.xlsx to use for composition
+compSheet_earth = 'H04_E';          %sheet in MoleWeights.xlsx to use for composition, need end of accretion value
 
 
 % READ DATA SHEETS

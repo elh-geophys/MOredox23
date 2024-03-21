@@ -8,19 +8,33 @@
 clear;
 
 % PARAMETERS
-model = 5;                          %accretion models, 4 = H04, 5 = N21
-r_0_idx = 4;                        %index for r_0, 1=0th, 2=1st, 3=5th... 8=99th, 9=100th
-compSheet_earth = 'N21_E';     %sheet in Compositions.xlsx to use for composition
-compSheet_imp = 'N21_imp';
+model = 4;                          %accretion models, 4 = H04, 5 = N21
+r_0_idx = 3;                        %index for r_0, 1=0th, 2=1st, 3=5th... 8=99th, 9=100th
+compSheet_earth = 'H04_E';     %sheet in Compositions.xlsx to use for composition
+compSheet_imp = 'H04_imp';
 Tp_type = 'Pmo';               %constant, Pmo, or U2Q method
     T0 = 1613;                          %initial temp for U2Q
 dP = 0.5e9;                         %[Pa] increments of P for layer to do metal rain calculation
 
-sheet_nomix = 'N21_25th_nomix';     %sheet name to record data
-sheet_mix = 'N21_25th_mix';
-dataSheet = 'N21_data';
+sheet_nomix = 'H04_5th_nomix';     %sheet name to record data
+sheet_mix = 'H04_5th_mix';
+dataSheet = 'H04_data';
 fileOut = 'Rain_EffvsD_Pmo.xlsx';       % file name
 write = 1;                          %1 to write, else to not write to file
+
+%CHOOSE YOUR Fe3/sumFe VALUE BEFORE GI
+%         [0th    1st    5th    25th   50th   75th   95th   99th   100th]
+if model == 4   % column UG in Rain_MC.xlsx WITH FIRST COLUMN AS LABELS!
+    %H04
+    %r_0 = [0.0780,0.0828,0.0913,0.1043,0.1129,0.1211,0.1286,0.1311,0.1324];    %Tconst
+    r_0 = [0.0460,0.0549,0.0704,0.0987,0.1168,0.1327,0.1471,0.1515,0.1559];    %Pmo
+elseif model == 5    % column OU WITH FIRST COLUMN AS LABELS!
+    %N21
+    %r_0 = [0.0382,0.0718,0.0834,0.0966,0.1059,0.1116,0.1239,0.1290,0.1310];    %Tconst
+    r_0 = [0.0338,0.0383,0.0422,0.0602,0.0794,0.1050,0.1273,0.1346,0.1362];    %Pmo
+else
+    disp('No r_0 values for model chosen')
+end
 
 % ---------------------------------------------------------------------- %
 
@@ -31,20 +45,6 @@ CompEarth_data = readmatrix('\db\Compositions.xlsx', 'Sheet', compSheet_earth);
 CompImp_data = readmatrix('\db\Compositions.xlsx', 'Sheet', compSheet_imp);
 MolW_byM_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11', 'Range', 'B2:B13');
 MolW_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11', 'Range', 'C2:C13');
-
-%CHOOSE YOUR Fe3/sumFe VALUE BEFORE GI
-%         [0th    1st    5th    25th   50th   75th   95th   99th   100th]
-if model == 4   % column UG in Rain_MC.xlsx
-    %H04
-    %r_0 = [0.0651,0.0794,0.0867,0.1001,0.1085,0.1170,0.1263,0.1297,0.1314];     %Tconst
-    r_0 = [0.0415,0.0533,0.0680,0.0950,0.1146,0.1319,0.1474,0.1532,0.1555];     %Pmo
-elseif model == 5    % column OU
-    %N21
-    %r_0 = [0.0317,0.0381,0.0448,0.0533,0.0591,0.0629,0.0690,0.0724,0.0742];     %Tconst
-    r_0 = [0.0160,0.0193,0.0230,0.0330,0.0440,0.0583,0.0728,0.0765,0.0785];     %Pmo
-else
-    disp('No r_0 values for model chosen')
-end
 
 % CONSTANTS
 Cp = 1e3;               %[J/kgK] specific heat 
@@ -175,11 +175,18 @@ for k = 1:length(eff)          % for each efficiency
         
         % final r from mixing redox'd MO with whole mantle
         %r_m_mix = (M_mo*r_m(idx) + (M_m_post-M_mo)*r_0(r_0_idx))/M_m_post;
-        r_m_mix = (M_mo*FeO_mo*r_m(idx)+(M_m-M_mo)*FeO_E*r_0(r_0_idx))/(M_mo*FeO_mo + (M_m_post-M_mo)*FeO_E);
-        %disp([num2str(r_m(idx)), ' before and ', num2str(r_m_mix), ' after mixing'])
-
+        r_m_mix = (M_mo*FeO_mo*r_m(idx)+(M_m_post-M_mo)*FeO_E*r_0(r_0_idx))/(M_mo*FeO_mo + (M_m_post-M_mo)*FeO_E);
+        
         FeO_f = (M_mo*FeO_mo+(M_m_post-M_mo)*FeO_E)/(M_m_post);
-        %disp(['FeO wt% = ', num2str(FeO_f)])
+        
+        
+        % if j == 100
+        %     %figure(2);
+        %     %hold on
+        %     %scatter(eff(k),r_m(1))
+        %     disp([num2str(r_m(idx)), ' before and ', num2str(r_m_mix), ' after mixing'])
+        %     disp(['FeO wt% = ', num2str(FeO_f)])
+        % end
 
         effvsd_nomix(j,k) = r_m(idx);
         effvsd_mix(j,k) = r_m_mix;

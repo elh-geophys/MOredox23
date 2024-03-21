@@ -9,34 +9,30 @@
 clear;
 
 % PARAMETERS
+r_0_idx = 4;                       %[1st, 5th, 25th, 50th]
 compSheet_earth = 'H04_E';     %sheet in Compositions.xlsx to use for Earth composition
 r_imp = 0.0055;                %Using 0.01M_earth in Rubie+2011 TableS3a inputs in test_getSingleFeRatio_H22.m
 FeO_imp = 8.2;                 %assume impactor has similar composition to Earth            
-Tp_type = 'Pmo';                   %constant, Pmo, or U2Q
+Tp_type = 'constant';                   %constant, Pmo, or U2Q
     T0 = 1613;                          %for U2Q method
 dP = 0.5e9;    
-
-%Fe3/sumFe value AFTER GI
-%Tconst method
-    %r_0 = 0.0866;      %1st H04
-    %r_0 = 0.0963;      %5th H04  
-    %r_0 = 0.1087;      %25th H04
-    %r_0 = 0.1191;      %median from H04 modeling
-    %r_0 = 0.1324;      %median from N21 modeling
-    %r_0 = 0.1283;      %25th N21
-    %r_0 = 0.1239;      %5th N21
-%Pmo method
-    %r_0 = 0.0653;      %1st H04
-    %r_0 = 0.0796;      %5th H04
-    %r_0 = 0.1073;      %25th H04
-    r_0 = 0.1278;      %50th H04
-
 
 sheet_nomix = 'H04_50th_nomix';     %sheet name to record data
 sheet_mix = 'H04_50th_mix';
 dataSheet = 'data';
-fileOut = 'Rain_EffvsD_late_Pmo.xlsx';               % file name
+fileOut = 'Rain_EffvsD_late_Tconst.xlsx';               % file name
 write = 1;
+
+%Fe3/sumFe value AFTER GI
+%              [1st,   5th,   25th,  50th]
+    r_0_temp = [0.0916,0.0998,0.1124,0.1217];      %Tconst
+    %r_0_temp = [0.0680,0.0828,0.1078,0.1265];      %Pmo
+    r_0 = r_0_temp(r_0_idx);
+%Pmo method
+    %r_0 = 0.0653;      %1st H04
+    %r_0 = 0.0796;      %5th H04
+    %r_0 = 0.1073;      %25th H04
+    %r_0 = 0.1278;      %50th H04
 
 % ---------------------------------------------------------------------- %
 
@@ -168,7 +164,7 @@ for k = 1:length(eff)          % for each efficiency
         end
         
         % final r from mixing redox'd MO with whole mantle
-        r_m_mix = (M_mo*FeO_mo*r_m(idx)+(M_m-M_mo)*FeO_E*r_0)/(M_mo*FeO_mo + (M_m_post-M_mo)*FeO_E);
+        r_m_mix = (M_mo*FeO_mo*r_m(idx)+(M_m_post-M_mo)*FeO_E*r_0)/(M_mo*FeO_mo + (M_m_post-M_mo)*FeO_E);
         %disp([num2str(r_m(idx)), ' before and ', num2str(r_m_mix), ' after mixing'])
 
         FeO_f = (M_mo*FeO_mo+(M_m_post-M_mo)*FeO_E)/(M_m_post);

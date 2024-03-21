@@ -1,6 +1,6 @@
 % EL
 % Aug 2022
-% Updated 2023-09-24
+% Updated 2023-03-03
 %
 % Efficiency vs Depth figure (Late Accretion)
 
@@ -9,7 +9,7 @@ reset = 0;
 if reset == 1
     clear;
     
-    xlsx = '\db\Rain_EffvsD_late_Pmo.xlsx';
+    xlsx = '\db\Rain_EffvsD_late_Tconst.xlsx';
     
     data = readmatrix(xlsx, 'Sheet', 'data', 'Range', 1);
     P = data(2,1:100)/1e9;      %just to ~50GPa
@@ -62,9 +62,8 @@ letter = "d";
 %Fe3/sumFe value AFTER GI
 %Tconst method
          % 1st     5th     25th    50th
-    %r_0 = [0.0866,0.0963,0.1087,0.1191];     %H04 modeling
-%Pmo method
-    r_0 = [0.0653,0.0796,0.1073,0.1278];     %H04
+    r_0 = [0.0916,0.0998,0.1124,0.1217];      %Tconst
+    %r_0 = [0.0680,0.0828,0.1078,0.1265];       %Pmo
     
 r_0 = r_0(r_0_idx)-0.35/8.2;
 
@@ -73,7 +72,6 @@ r_0 = r_0(r_0_idx)-0.35/8.2;
 %map = [0.88 0.88 0.88; 0.82 0.82 0.82; 0.78 0.78 0.78; 0.72 0.72 0.72; 1 1 1];
         
 %map = [0.82 0.82 0.82; 1 1 1];          % chosen mix contour colors
-%map = [1 1 1; 0.82 0.82 0.82];
 map = [1 1 1];
 
 map_neg = [0 0 0];
@@ -125,9 +123,9 @@ ax1.YTickLabel = {'1%' '' '' '' '' '' '' '' '' ...
     '100%'};
 text(42, -1.87, "r_0=" + round(r_0,3), 'FontWeight', 'bold')
 text(47, -1.70, letter, 'FontWeight', 'bold', 'FontSize', 20)
-% annotation('textarrow',[0.75 0.69],[0.53 0.41])
-% text(37, -1.3,'reduced MO','FontSize',8)
-% annotation('textarrow',[0.76 0.82],[0.55 0.67])
-% text(36, -0.6,'oxidized MO','FontSize',8)
+% annotation('textarrow',[0.70 0.64],[0.58 0.46])
+% text(35, -1.1,'reduced MO','FontSize',8)
+% annotation('textarrow',[0.71 0.77],[0.61 0.73])
+% text(35, -0.45,'oxidized MO','FontSize',8)
 title(ax1, title_name)
 

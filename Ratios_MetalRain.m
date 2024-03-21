@@ -16,15 +16,13 @@
 clear;
 
 % PARAMETERS TO CHANGE
-model = 5;                      %accretion models, 1 = W90(high), 2 = W90(low), 3 = H00, 4 = H04, 5 = N21
+model = 4;                      %accretion models, 1 = W90(high), 2 = W90(low), 3 = H00, 4 = H04, 5 = N21
 r_0 = 0.004;                    %initial Fe3+/sumFe for Earth
 eff = 1;                        %[] efficiency factor for droplet equilibrium, 1 = 100%
 d_mo_factor = 1;                %[] fraction of Pcmb pressure for MO base pressure
-%compSheet_earth = 'H04_E';           %sheet in Compositions.xlsx to use for composition
-%compSheet_imp = 'H04_imp';
-compSheet_earth = 'N21_E';           %sheet in Compositions.xlsx to use for composition
-compSheet_imp = 'N21_imp';
-Tp_type = 'Pmo';           %chooose method to calculate Tp, either 'Pmo', 'U2Q', or 'constant'
+compSheet_earth = 'H04_E';           %sheet in Compositions.xlsx to use for composition
+compSheet_imp = 'H04_imp';
+Tp_type = 'constant';           %chooose method to calculate Tp, either 'Pmo', 'U2Q', or 'constant'
     T0 = 1613;                      %[K] initial Tp if using U2Q method
     epsilon = 0.2;                  %energy contribution factor for U
     Tp_const = 3500;                %[K] Tp for 'constant' method

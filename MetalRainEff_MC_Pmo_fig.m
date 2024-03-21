@@ -4,8 +4,6 @@
 % 
 % Creates figure for metal rain model as Fe ratio vs time, MC results ONLY.
 % Uses data from Rain_***.xlsx, which is created by Ratios_MetalRain_***.m
-%
-% Creates Figure 2 in MO_redox manuscript.
 
 reset = 1;          % change value to 1 for initialization of data.
 
@@ -65,7 +63,7 @@ r_preCr_range = r_postCr_range + 0.35/8.2;
 colors_blue = [33,102,172; 116, 159, 210; 172, 192, 224; 224, 231, 243; 255, 255, 255]/255;
 colors_red = [213,62,79; 229, 134, 145; 239, 183, 189; 249, 228, 230; 255, 255, 255]/255;
 
-figure('Position', [30 30 1400 500]);
+figure('Units', 'centimeters', 'Position', [3 3 36 13]);
 
 subplot(1,3,1);     %Fe ratio for H04
 hold on
@@ -171,21 +169,21 @@ ax2.Layer = 'top';
 % r_postCr_MC_1_upshift = r_postCr_MC_2+0.004;
 % text(r_preCr_MC_1_rightshift(1), r_postCr_MC_1_upshift(1), labels1, 'FontSize', 6, 'Color', colors_red(1,:), 'HorizontalAlignment', 'left');
 labels2 = ["P_0   ", "P_1   ", "P_5   ", "P_{25}   ", "median   ", "P_{75}   ", "P_{95}   ", "P_{99}   ", "P_{100}   "];
-text(r_preCr_MC_1, r_postCr_MC_1, labels2, 'FontSize', 6, 'Color', colors_red(1,:), 'HorizontalAlignment', 'right');
+text(r_preCr_MC_1, r_postCr_MC_1, labels2, 'FontSize', 8, 'Color', colors_red(1,:), 'HorizontalAlignment', 'right');
 
 ax3 = axes;
 hold on
 box on
-r_preCr_MC_2_wr0 = sort(cat(2, r_preCr_MC_2_shift, r_preCr_limit+0.005));           %where r = 0, flatten to line
-r_postCr_MC_2_wr0 = sort(cat(2, r_postCr_MC_2, 0));
-plot(r_preCr_MC_2_wr0, r_postCr_MC_2_wr0, '-', 'Color', colors_blue(1,:), "LineWidth", 2)
+% r_preCr_MC_2_wr0 = sort(cat(2, r_preCr_MC_2_shift, r_preCr_limit+0.005));           %where r = 0, flatten to line
+% r_postCr_MC_2_wr0 = sort(cat(2, r_postCr_MC_2, 0));
+plot(r_preCr_MC_2_shift, r_postCr_MC_2, '-', 'Color', colors_blue(1,:), "LineWidth", 2)
 scatter(r_preCr_MC_2_shift, r_postCr_MC_2, [], c, 'filled', 'MarkerEdgeColor', colors_blue(1,:))
-labels1 = ["P_0"];
-r_postCr_MC_2_upshift = r_postCr_MC_2+0.004;
-r_preCr_MC_2_leftshift = r_preCr_MC_2_shift-0.003;
-text(r_preCr_MC_2_leftshift(1), r_postCr_MC_2_upshift(1), labels1, 'FontSize', 6, 'Color', colors_blue(1,:), 'HorizontalAlignment', 'left');
-labels2 = ["   P_1", "   P_5", "   P_{25}", "   median", "   P_{75}", "   P_{95}", "   P_{99}", "   P_{100}"];
-text(r_preCr_MC_2_shift(2:end), r_postCr_MC_2(2:end), labels2, 'FontSize', 6, 'Color', colors_blue(1,:), 'HorizontalAlignment', 'left');
+% labels1 = ["P_0"];
+% r_postCr_MC_2_upshift = r_postCr_MC_2+0.004;
+% r_preCr_MC_2_leftshift = r_preCr_MC_2_shift-0.003;
+%text(r_preCr_MC_2_leftshift(1), r_postCr_MC_2_upshift(1), labels1, 'FontSize', 6, 'Color', colors_blue(1,:), 'HorizontalAlignment', 'left');
+labels2 = ["   P_0", "   P_1", "   P_5", "   P_{25}", "   median", "   P_{75}", "   P_{95}", "   P_{99}", "   P_{100}"];
+text(r_preCr_MC_2_shift, r_postCr_MC_2, labels2, 'FontSize', 8, 'Color', colors_blue(1,:), 'HorizontalAlignment', 'left');
 text(0.005, 0.135, 'c', 'FontSize', 20, 'FontWeight', 'bold')
 
 linkaxes([ax2,ax3])

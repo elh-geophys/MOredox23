@@ -15,21 +15,18 @@
 clear;
 
 % PARAMETERS TO CHANGE
-model = 5;                      %accretion models, 1 = W90(high), 2 = W90(low), 3 = H00, 4 = H04, 5 = N21
+model = 4;                      %accretion models, 1 = W90(high), 2 = W90(low), 3 = H00, 4 = H04, 5 = N21
 r_0 = 0.004;                    %initial Fe3+/sumFe for Earth
 %eff = [1 2 3 4 5 6 7 8 9 10 20 30 40 50 60 70 80 90 100]/100;
 eff = [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1 2 3 4 5 6 7 8 9 10 20 30 40 50 60 70 80 90 100]/100;
 d_mo_factor = 0.05:0.05:1.0;                %[] fraction of Pcmb pressure for MO base pressure
 
-compSheet_earth = 'N21_E';           %sheet in Compositions.xlsx to use for composition
-compSheet_imp = 'N21_imp';
-Tp_type = 'constant';           %chooose method to calculate Tp, either 'Pmo', 'U2Q', or 'constant'
-    T0 = 1613;                      %[K] initial Tp if using U2Q method
-    epsilon = 0.2;                  %energy contribution factor for U
-    Tp_const = 3500;                %[K] Tp for 'constant' method
+compSheet_earth = 'H04_E';           %sheet in Compositions.xlsx to use for composition
+compSheet_imp = 'H04_imp';
 dP = 0.5e9;                     %[Pa] increments of P for layer to do metal rain calculation
 
-sheetOut = 'N21';               %sheet name to record data
+letter = 'a';
+sheetOut = 'H04';               %sheet name to record data
 fileOut = 'Rain_const.xlsx';          %file name to record data
 write = 0;                      %1 or 0, to write to file
 
@@ -263,6 +260,7 @@ ax1.YTickLabel = {'0.1%' '' '' '' '' '' '' '' '' ...
     '1%' '' '' '' '' '' '' '' '' ...
     '10%' '' '' '' '' '' '' '' '' ...
     '100%'};
+text(0.94, -0.15, letter, 'FontWeight', 'bold', 'FontSize', 20)
 title(ax1, sheetOut)
 
 
