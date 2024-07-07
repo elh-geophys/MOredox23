@@ -1,38 +1,38 @@
 % EL
 % August 2022
-% Updated 2023-09-29
+% Updated 2024-07-03
 %
 % Determine Fe3/Fe in MO of given depth (P_mo) and given efficiency (eff)
-% for late accretion (1%)
+% for late accretion (1%). Outputs data in spreadsheet file. This outputs a
+% figure, but it's unpolished. Use EffvsD_late_fig.m to make figure.
 
 
 clear;
 
 % PARAMETERS
-r_0_idx = 4;                       %[1st, 5th, 25th, 50th]
+r_0_idx = 1;                   %[1st, 5th, 25th, 50th]
 compSheet_earth = 'H04_E';     %sheet in Compositions.xlsx to use for Earth composition
 r_imp = 0.0055;                %Using 0.01M_earth in Rubie+2011 TableS3a inputs in test_getSingleFeRatio_H22.m
-FeO_imp = 8.2;                 %assume impactor has similar composition to Earth            
-Tp_type = 'constant';                   %constant, Pmo, or U2Q
-    T0 = 1613;                          %for U2Q method
+FeO_imp = 8.2;                 %assume impactor has similar composition to Earth, since small mass, this has little effect regardless            
+Tp_type = 'Pmo';          %constant or Pmo
 dP = 0.5e9;    
 
-sheet_nomix = 'H04_50th_nomix';     %sheet name to record data
-sheet_mix = 'H04_50th_mix';
+sheet_nomix = 'H04_1st_nomix';     %sheet name to record data
+sheet_mix = 'H04_1st_mix';
 dataSheet = 'data';
-fileOut = 'Rain_EffvsD_late_Tconst.xlsx';               % file name
+fileOut = 'Rain_EffvsD_late_Pmo.xlsx';               % file name
 write = 1;
 
 %Fe3/sumFe value AFTER GI
-%              [1st,   5th,   25th,  50th]
-    r_0_temp = [0.0916,0.0998,0.1124,0.1217];      %Tconst
-    %r_0_temp = [0.0680,0.0828,0.1078,0.1265];      %Pmo
-    r_0 = r_0_temp(r_0_idx);
-%Pmo method
-    %r_0 = 0.0653;      %1st H04
-    %r_0 = 0.0796;      %5th H04
-    %r_0 = 0.1073;      %25th H04
-    %r_0 = 0.1278;      %50th H04
+%                  [1st,   5th,   25th,  50th]
+switch Tp_type
+    case 'constant'
+        r_0_temp = [0.0856,0.0955,0.1107,0.1200];    %Tconst
+    case 'Pmo'
+        r_0_temp = [0.0613,0.0824,0.1077,0.1260];    %Pmo
+end
+r_0 = r_0_temp(r_0_idx);
+
 
 % ---------------------------------------------------------------------- %
 
@@ -40,13 +40,11 @@ write = 1;
 PV_data = readmatrix('/db/PVcalc.xlsx');
 Adiabat_data = readmatrix('\db\geotherms_combo.xlsx');
 CompEarth_data = readmatrix('\db\Compositions.xlsx', 'Sheet', compSheet_earth);
-MolW_byM_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11', 'Range', 'B2:B13');
-MolW_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11', 'Range', 'C2:C13');
+MolW_byM_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11_Emantle', 'Range', 'B2:B13');
+MolW_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11_Emantle', 'Range', 'C2:C13');
 
 % CONSTANTS
-Cp = 1e3;               %[J/kgK] specific heat 
 M_E_0 = 5.97e24;        %[kg] present day mass of Earth
-M_c_0 = 1.88e24;        %[kg] present day mass of core
 rho_imp = 5000;         %[kg/m^3] approximation based on weighted average (0.68Si + 0.32Fe)
 
 % SET UP ACCRETION MODEL
@@ -55,26 +53,20 @@ Accr_model = [0.99, 1];
 M_E = Accr_model(1) * M_E_0;         % mass post-GI
 M_imp = diff(Accr_model) * M_E_0;       % mass accreted in late accretion
 
-FeO_E = CompEarth_data(5,end);
+FeO_E = CompEarth_data(7,end);
 
-% assume core and mantle take up proportional mass of Earth
-M_c = M_E * M_c_0/M_E_0;    %core
+% core/mass evolution
+M_c_ratio = CompEarth_data(2,end);
+M_c = M_E * M_c_ratio;      %core
 M_m = M_E - M_c;            %mantle
-M_m_post = M_E_0 - M_c_0;
+M_m_post = M_E_0 - M_E_0*M_c_ratio;   %decent guess?
 
 % Rubie+2011, approximations for mantle and core densities
 rho_m = (4500-3400)*Accr_model+3400;     %scales with planetary mass, use 3400 for upper mantle density for silicate as initial
 rho_c = 2.5 * rho_m;
 
-V_c = M_c/rho_c(1);                           %volume of core
-V_m = M_m/rho_m(1);                           %volume of mantle
-R_E = (3/(4*pi)*(V_m + V_c))^(1/3);           %radius of Earth
-R_imp = (3/(4*pi)*M_imp/rho_imp)^(1/3);       %radius of impactor 
-
-Fe_ratio = 0.321;               % [] weight % of iron on Earth/impactor
-Si_ratio = 1-Fe_ratio;          % [] weight % of silicate on Earth/impactor
-M_c_imp = M_imp*Fe_ratio;       % [kg] approximate proportion metal mass of impactor
-M_m_imp = M_imp*Si_ratio;       % [kg] approximate proportion silicate mass of impactor
+M_c_imp = M_imp*M_c_ratio;       % [kg] assume same as Earth for simplicity
+M_m_imp = M_imp - M_c_imp;       % [kg] approximate proportion silicate mass of impactor
 
 % Use half impactor core mass between pre- and post-impact to determine R_c at impact
 % Use entire mantle mass for chemical mixing post-impact
@@ -123,15 +115,6 @@ for k = 1:length(eff)          % for each efficiency
                 Tp = getMOTp(P_late(j)/1e9, Adiabat_data);
             case 'constant'
                 Tp = 3500;
-            case 'U2Q'
-                Tp_mo_base = getMOTp(P_late(j)/1e9, Adiabat_data);
-                
-                Tf_test = calcTforU2Q(T0,Cp,M_E,M_c,M_imp,R_E,R_imp,Si_ratio,0.2);
-                if Tf_test > Tp_mo_base
-                    Tp = Tp_mo_base;
-                else
-                    Tp = Tf_test;
-                end
             otherwise
                 disp('Could not calculate Tp based on input Tp_type')
                 Tp = NaN;
@@ -144,7 +127,7 @@ for k = 1:length(eff)          % for each efficiency
         PV = calcPV(Tad,P, PV_data);
         
         % CALCULATE Fe3+/sumFe EQUILIBRIUM RATIO AS FUNCTION OF P,T,dIW
-        [r_eq,~] = calcFeRatio(Tad, P, PV, CompEarth_data(:,end), MolW_data, MolW_byM_data);
+        [r_eq,~] = calcFeRatio(Tad, P, PV, CompEarth_data(3:end,end), MolW_data, MolW_byM_data);
      
         % METAL RAIN CALCULATION FOR THIS TIME STEP
         R_mo = interp1(P_check, R, P_late(j));
@@ -190,27 +173,30 @@ end
 
 c = linspace(0.005, 0.1, 20);
 ct = [0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.10];
-c0 = [0.02 0.03];
+c0 = [0.02 0.06];
 
-figure('Position', [200 200 1000 400]);
-subplot(1,2,1)
-hold on
-box on
-[C,h] = contour(P_late/1e9, log10(eff), effvsd_mix'-0.35/8.2, c, 'LineWidth', 2);
-clabel(C,h,ct, 'LabelSpacing', 200)
-xlabel('Pressure (GPa)')
-ylabel('log(Efficiency)')
-xlim([P_min/1e9 100])
-title("Whole Mantle (with post-mixing)")
+figure('Position', [200 200 500 400]);
+ax1 = axes;
+contourf(ax1, P_late/1e9, log10(eff), (effvsd_mix'-0.35/8.2), c0, 'LineWidth', 2, 'EdgeColor', 'none');
 
-subplot(1,2,2)
-hold on
-box on
-colormap cool
-colormap(flipud(colormap));
-contour(P_late/1e9, log10(eff), effvsd_nomix'-0.35/8.2, c, 'LineWidth', 2, 'ShowText', 'on', 'TextList', ct, 'LabelSpacing', 300)
-xlabel('Pressure (GPa)')
-ylabel('log(Efficiency)')
-xlim([P_min/1e9 100])
-ylim([-3 0])
-title("Top MO only (no post-mixing)")
+ax2 = axes;
+contour(ax2, P_late/1e9, log10(eff), (effvsd_nomix'-0.35/8.2), c, 'LineWidth', 2, 'ShowText', 'on', 'TextList', ct, 'LabelSpacing', 500, 'FaceColor', 'none');
+
+linkaxes([ax1,ax2])
+ax2.Visible = 'off';
+ax2.XTick = [];
+ax2.YTick = [];
+
+map = [0.82 0.82 0.82; 1 1 1];   
+%map = [1 1 1];                                      
+colormap(ax1, map)
+colormap(ax2, flipud(colormap(ax2,cool)));
+
+ax1.Box = 'on';
+ax1.XLabel.String = 'P (GPa)';
+ax1.YLabel.String = 'Efficiency';
+ax1.YTick = log10(eff);
+ax1.YTickLabel = {'0.1%' '' '' '' '' '' '' '' '' ...
+    '1%' '' '' '' '' '' '' '' '' ...
+    '10%' '' '' '' '' '' '' '' '' ...
+    '100%'};

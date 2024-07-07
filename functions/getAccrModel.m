@@ -109,7 +109,7 @@ function [t, model] = getAccrModel(type)
                elseif t(i) <= 4
                    f_N21(i) = 0.4;
                elseif t(i) <= t_GI
-                   f_N21(i) = 0.5;
+                   f_N21(i) = 0.495;
                else
                    f_N21(i) = 0.99;
                end

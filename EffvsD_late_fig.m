@@ -1,10 +1,23 @@
 % EL
 % Aug 2022
-% Updated 2023-03-03
+% Updated 2023-07-03
 %
 % Efficiency vs Depth figure (Late Accretion)
+%
+% Adjust the following:
+%   xlsx            which spredsheet to use
+%   mix & nomix     which data sheet to use
+%   r_0_idx         which Fe3+/sumFe ratio was the initial one, comment out
+%                       the array not using
+%   title           for graph
+%   letter          for graph
+%
+% Note you may need to adjust the contour shading if there are no solutions
+% (check min(mix)... if nothing less than 0.6, then be sad :( ). Lastly, I
+% usually manually move the reduced/oxidized arrows instead of worrying to
+% much about scripting their exact location.
 
-reset = 0;
+reset = 0;     %if data sheets need to be read again
 
 if reset == 1
     clear;
@@ -53,26 +66,27 @@ if reset == 1
     
 end
 
-mix = H04_50th_mix - 0.35/8.2;       %0.35% reduction in FeO1.5 after Cr oxi with 8.1% FeO*
-nomix = H04_50th_nomix - 0.35/8.2;
-r_0_idx = 4;                            %for r_0 to choose
-title_name = "H04: 50th Percentile";
-letter = "d";
+mix = H04_1st_mix - 0.35/8.2;       %0.35% reduction in FeO1.5 after Cr oxi with 8.1% FeO*
+nomix = H04_1st_nomix - 0.35/8.2;
+r_0_idx = 1;                            %for r_0 to choose
+title_name = "H04: 1st Percentile";
+letter = "a";
 
 %Fe3/sumFe value AFTER GI
 %Tconst method
          % 1st     5th     25th    50th
-    r_0 = [0.0916,0.0998,0.1124,0.1217];      %Tconst
-    %r_0 = [0.0680,0.0828,0.1078,0.1265];       %Pmo
-    
-r_0 = r_0(r_0_idx)-0.35/8.2;
+r_0_temp = [0.0856,0.0955,0.1107,0.1200];    %Tconst
+%r_0_temp = [0.0613,0.0824,0.1077,0.1260];    %Pmo
+
+r_0 = r_0_temp(r_0_idx)-0.35/8.2;
 
 % back when I used to do shades of gray:
 %       0.2-0.3         0.3-0.4         0.4-0.5         0.5-0.6         rest
 %map = [0.88 0.88 0.88; 0.82 0.82 0.82; 0.78 0.78 0.78; 0.72 0.72 0.72; 1 1 1];
         
-%map = [0.82 0.82 0.82; 1 1 1];          % chosen mix contour colors
-map = [1 1 1];
+map = [0.82 0.82 0.82; 1 1 1];          % chosen mix contour colors
+%map = [1 1 1; 0.82 0.82 0.82];
+%map = [1 1 1];                           % for no solution, check min(mix)
 
 map_neg = [0 0 0];
 
@@ -123,9 +137,9 @@ ax1.YTickLabel = {'1%' '' '' '' '' '' '' '' '' ...
     '100%'};
 text(42, -1.87, "r_0=" + round(r_0,3), 'FontWeight', 'bold')
 text(47, -1.70, letter, 'FontWeight', 'bold', 'FontSize', 20)
-% annotation('textarrow',[0.70 0.64],[0.58 0.46])
-% text(35, -1.1,'reduced MO','FontSize',8)
-% annotation('textarrow',[0.71 0.77],[0.61 0.73])
-% text(35, -0.45,'oxidized MO','FontSize',8)
+% annotation('textarrow',[0.67 0.59],[0.51 0.39])
+% text(24, -1.37,'reduced MO','FontSize',8)
+% annotation('textarrow',[0.68 0.75],[0.53 0.65])
+% text(34, -0.6,'oxidized MO','FontSize',8)
 title(ax1, title_name)
 

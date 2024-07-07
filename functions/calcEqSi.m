@@ -37,7 +37,7 @@ function [M_eq] = calcEqSi(M_c_imp, Eq_type)
     R_D = 1;            %diffusivity ratio ~ 1  (may be 1-10?)
     h = r_d/(a*Pe^(0.5));                             %diffusion boundary
     tau = Pe/3 * ( k/Sh + 1/(10*R_D)) * r_d/v_d;      %time scale for equilibrium
-    disp(["tau =", num2str(tau)])
+    %disp(["tau =", num2str(tau)])
 
     switch Eq_type
         case 'cyl'                  %cylindrical tail or ring model

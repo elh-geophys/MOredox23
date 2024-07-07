@@ -14,7 +14,7 @@ compSheet = 'Deng20';           %sheet in MoleWeights.xlsx to use for compositio
 Pcmb = 135e9;   %{Pa] pressure at the CMB
 dP = 0.5e9;     %[Pa] increments of P
 
-write = 1;
+write = 0;
 
 P = 0:dP:Pcmb;
 

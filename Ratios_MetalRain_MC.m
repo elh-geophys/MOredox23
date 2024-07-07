@@ -1,6 +1,6 @@
 % EL
 % August 2022
-% Updated 2024-02-21
+% Updated 2024-07-02
 %
 % Produce Monte Carlo results with varying efficiency and depth for each
 % impact during accretion.
@@ -12,27 +12,27 @@ clear;
 tic
 
 % PARAMETERS TO CHANGE
-model = 5;                  %accretion models: 4 = H04, 5 = N21  (using a continous model like 1-3 will take a LONG time :) )
+model = 4;                  %accretion models: 4 = H04, 5 = N21  (using a continous model like 1-3 will take a LONG time :) )
 r_0 = 0.004;                %initial Fe3+/sumFe
-N = 1000;                   %number of MC samples
-compSheet_earth = 'N21_E';           %sheet in Compositions.xlsx to use for composition
-compSheet_imp = 'N21_imp';
-Tp_type = 'Pmo';               %chooose method to calculate Tp, either 'Pmo', 'U2Q', or 'constant'
+N = 200;                   %number of MC samples
+compSheet_earth = 'H04_E';           %sheet in Compositions.xlsx to use for composition
+compSheet_imp = 'H04_imp';
+Tp_type = 'constant';               %chooose method to calculate Tp, either 'Pmo', 'U2Q', or 'constant'
     Tp_const = 3500;                %[K] Tp for 'constant' method
 dP = 0.5e9;
 
-sheetOut = 'N21_Pmo';            %sheet name to record data
+sheetOut = 'H04_const';            %sheet name to record data
 fileOut = 'Rain_MC.xlsx';    % file name
-write = 1;                   %1 or 0, to write to file
+write = 0;                   %1 or 0, to write to file
 
 % ---------------------------------------------------------------------- %
 
 % READ DATA SHEETS
+CompEarth_data = readmatrix('\db\Compositions.xlsx', 'Sheet', compSheet_earth);
 CompImp_data = readmatrix('\db\Compositions.xlsx', 'Sheet', compSheet_imp);
 
 % CONSTANTS
 M_E_0 = 5.97e24;        %[kg] present day mass of Earth
-M_c_0 = 1.88e24;        %[kg] present day mass of core
 rho_imp = 5000;         %[kg/m^3] approximation based on weighted average (0.68Si + 0.32Fe)
 
 % SET UP ACCRETION MODEL
@@ -43,8 +43,12 @@ M_imp = M_E_0 * diff(Accr_model);
 % note: during impact "n", earth mass is "n" pre-impact and "n+1" post-impact
 
 % assume core and mantle take up proportional mass of Earth
-M_c = M_E * M_c_0/M_E_0;    %core
-M_m = M_E - M_c;            %mantle
+M_c_ratio = CompEarth_data(2,:);
+M_c = M_E .* M_c_ratio;      %Earth core
+M_m = M_E - M_c;            %Earth mantle
+
+M_c_imp = diff(M_c);
+M_m_imp = M_imp - M_c_imp;
 
 % Rubie+2011, approximations for mantle and core densities
 rho_m = (4500-3400)*Accr_model+3400;     %scales with planetary mass, use 3400 for upper mantle density for silicate as initial
@@ -55,15 +59,10 @@ V_m = M_m./rho_m;                           %volume of mantle
 R_E = (3/(4*pi)*(V_m + V_c)).^(1/3);        %radius of Earth
 R_imp = (3/(4*pi)*M_imp/rho_imp).^(1/3);    %radius of impactor 
 
-Fe_ratio = 0.321;               % [] weight % of iron on Earth/impactor
-Si_ratio = 1-Fe_ratio;          % [] weight % of silicate on Earth/impactor
-M_c_imp = M_imp*Fe_ratio;       % [kg] approximate proportion metal mass of impactor
-M_m_imp = M_imp*Si_ratio;       % [kg] approximate proportion silicate mass of impactor
-
 %estimated Fe3+/sumFe for impactor, based on Rubie+2011, Supp. Table 3a
 %determined endpoints by using test_getSingleFeRatio_H22.m
-r_imp = CompImp_data(3,:);
-FeO_imp = CompImp_data(2,:);
+r_imp = CompImp_data(5,:);
+FeO_imp = CompImp_data(4,:);
 
 % Use half impactor core mass between pre- and post-impact to determine R_c at impact
 % Use entire mantle mass for chemical mixing post-impact

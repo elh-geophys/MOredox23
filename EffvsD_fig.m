@@ -1,25 +1,37 @@
 % EL
 % Aug 2022
-% Updated 2024-02-22
+% Updated 2024-07-03
 %
-% Efficiency vs Depth for last GI figure
+% Efficiency vs Depth for last GI figure. Data from EffvsD.m. Creates
+% Figure 3 in MO redox manuscript (and the Supp Fig Pmo version)
 %
-% Note: need to change the data sheet because H04 and N21 have different
-% ranges of pressure (line 18)
+% Change the following:
+%   xlsx        data file, either **_const or **_Pmo
+%   data        data sheet because H04 and N21 have different ranges of pressure
+%   mix & nomix which data to use
+%   r0_val      which initial Fe3+/sumFe value from pre-GI MC results,
+%                   comment out the r0 arrays you aren't using.
+%   title       for graph
+%   letter      for graph
 %
-% also note, you may need to change the shaded region based on the max(mix)
-% in line 68
+% also note, you may need to change the shaded contour region based on the max(mix)
+% and the location of the letter and 'r0=##'. And to be honest, I often
+% just manually move around the oxidized/reduced arrows.
 
-reset = 0;      %reset=1 will read the file again
+
+reset = 1;      %reset=1 will read the file again
 
 if reset == 1
     clear;
     
-    xlsx = '\db\Rain_EffvsD_Tconst.xlsx';
+    xlsx = '\db\Rain_EffvsD_Pmo.xlsx';
     
-    data = readmatrix(xlsx, 'Sheet', 'N21_data', 'Range', 1);
+    data = readmatrix(xlsx, 'Sheet', 'H04_data', 'Range', 1);
     P = data(2,:)/1e9;
     eff = data(1,1:28);
+
+    H04_p1_nomix = readmatrix(xlsx, 'Sheet', 'H04_1st_nomix');
+    H04_p1_mix = readmatrix(xlsx, 'Sheet', 'H04_1st_mix'); 
  
     H04_p5_nomix = readmatrix(xlsx, 'Sheet', 'H04_5th_nomix');
     H04_p5_mix = readmatrix(xlsx, 'Sheet', 'H04_5th_mix'); 
@@ -30,8 +42,11 @@ if reset == 1
     H04_p50_nomix = readmatrix(xlsx, 'Sheet', 'H04_50th_nomix');
     H04_p50_mix = readmatrix(xlsx, 'Sheet', 'H04_50th_mix'); 
     
-    H04_p75_nomix = readmatrix(xlsx, 'Sheet', 'H04_75th_nomix');
-    H04_p75_mix = readmatrix(xlsx, 'Sheet', 'H04_75th_mix'); 
+    % H04_p75_nomix = readmatrix(xlsx, 'Sheet', 'H04_75th_nomix');
+    % H04_p75_mix = readmatrix(xlsx, 'Sheet', 'H04_75th_mix');
+
+    N21_p1_nomix = readmatrix(xlsx, 'Sheet', 'N21_1st_nomix');
+    N21_p1_mix = readmatrix(xlsx, 'Sheet', 'N21_1st_mix'); 
 
     N21_p5_nomix = readmatrix(xlsx, 'Sheet', 'N21_5th_nomix');
     N21_p5_mix = readmatrix(xlsx, 'Sheet', 'N21_5th_mix'); 
@@ -42,25 +57,25 @@ if reset == 1
     N21_p50_nomix = readmatrix(xlsx, 'Sheet', 'N21_50th_nomix');
     N21_p50_mix = readmatrix(xlsx, 'Sheet', 'N21_50th_mix'); 
 
-    N21_p75_nomix = readmatrix(xlsx, 'Sheet', 'N21_75th_nomix');
-    N21_p75_mix = readmatrix(xlsx, 'Sheet', 'N21_75th_mix');
+    % N21_p75_nomix = readmatrix(xlsx, 'Sheet', 'N21_75th_nomix');
+    % N21_p75_mix = readmatrix(xlsx, 'Sheet', 'N21_75th_mix');
     % 
 end
 
-mix = N21_p5_mix-0.35/8.2;       %0.35% reduction in FeO1.5 after Cr oxi with 8.2% FeO*
-nomix = N21_p5_nomix-0.35/8.2;
-r0_val = 3;
-title_name = "N21: 5th Percentile";
-letter = "d";
+mix = H04_p1_mix-0.35/8.2;       %0.35% reduction in FeO1.5 after Cr oxi with 8.2% FeO*
+nomix = H04_p1_nomix-0.35/8.2;
+r0_val = 2;
+title_name = "H04: 1st Percentile";
+letter = "";
 
-%Fe3/sumFe value BEFORE GI from modeling
-%          [0th    1st    5th    25th   50th   75th   95th   99th   100th]
-%Tconst method
-    %r_0 = [0.0780,0.0828,0.0913,0.1043,0.1129,0.1211,0.1286,0.1311,0.1324];      %H04
-    r_0 = [0.0382,0.0718,0.0834,0.0966,0.1059,0.1116,0.1239,0.1290,0.1310];      %N21
-%Pmo method
-    %r_0 = [0.0460,0.0549,0.0704,0.0987,0.1168,0.1327,0.1471,0.1515,0.1559];     %H04
-    %r_0 = [0.0338,0.0383,0.0422,0.0602,0.0794,0.1050,0.1273,0.1346,0.1362];     %N21
+%CHOOSE YOUR Fe3/sumFe VALUE BEFORE GI
+%         [0th    1st    5th    25th   50th   75th   95th   99th   100th]
+%H04
+    %r_0 = [0.0695,0.0781,0.0878,0.1009,0.1101,0.1189,0.1271,0.1299,0.1314];    %Tconst
+    r_0 = [0.0365,0.0523,0.0709,0.0963,0.1156,0.1316,0.1470,0.1510,0.1538];    %Pmo
+%N21
+    %r_0 = [0.0513,0.0694,0.0836,0.0958,0.1042,0.1104,0.1204,0.1275,0.1298];    %Tconst
+    %r_0 = [0.0351,0.0388,0.0432,0.0611,0.0796,0.1040,0.1265,0.1334,0.1357];    %Pmo
 
 % when I used to do different shades:
 %map = [0.88 0.88 0.88; 0.82 0.82 0.82; 0.78 0.78 0.78; 0.72 0.72 0.72; 1 1 1];   % chosen mix contour colors
@@ -73,7 +88,8 @@ map_neg = [0 0 0];
 %range for post-Cr oxidation = modern day mantle FeO*
 %0.02 to 0.06 contours
 c = linspace(0.01, 0.2, 20);
-ct = [0.02 0.3 0.04 0.05 0.06 0.07 0.08 0.9 0.10 0.11 0.12];
+%ct = [0.02 0.3 0.04 0.05 0.06 0.07 0.08 0.9 0.10 0.11 0.12];
+ct = [0.02 0.04 0.06 0.08 0.10 0.12];               %only even contours labeled
 %c0 = [0.02 0.03 0.04 0.05 0.06];
 c0 = [0.02 0.06];
 c_neg = [-0.05 0];                                  %for negative Fe3/sumFe limit
@@ -119,15 +135,15 @@ ax1.YTickLabel = {'0.1%' '' '' '' '' '' '' '' '' ...
     '10%' '' '' '' '' '' '' '' '' ...
     '100%'};
 %text(5, -2.8, "r_0=" + round(r_0(r0_val),3), 'FontWeight', 'bold')
-text(72, -2.88, "r_0=" + round(r_0(r0_val),3), 'FontWeight', 'bold')
-text(72, -2.65, letter, 'FontWeight', 'bold', 'FontSize', 20)
-%text(108, -2.88, "r_0=" + round(r_0(r0_val),3), 'FontWeight', 'bold')
-%text(118, -2.65, letter, 'FontWeight', 'bold', 'FontSize', 20)
+%text(96, -0.15, "r_0=" + round(r_0(r0_val),3), 'FontWeight', 'bold')    %N21
+%text(96, -0.35, letter, 'FontWeight', 'bold', 'FontSize', 20)           %N21
+text(112, -2.88, "r_0=" + round(r_0(r0_val),3), 'FontWeight', 'bold')   %H04
+text(122, -2.65, letter, 'FontWeight', 'bold', 'FontSize', 20)          %H04
 
-% annotation('textarrow',[0.53 0.50],[0.34 0.23])
-% text(59, -2.6,'reduced MO','FontSize',8)
-% annotation('textarrow',[0.54 0.58],[0.36 0.48])
-% text(69, -1.55,'oxidized MO','FontSize',8)
+% annotation('textarrow',[0.56 0.52],[0.45 0.30])
+% text(64.2, -2.38,'reduced MO','FontSize',8)
+% annotation('textarrow',[0.56 0.60],[0.47 0.61])
+% text(71.5, -1.1,'oxidized MO','FontSize',8)
 title(ax1, title_name)
 
 

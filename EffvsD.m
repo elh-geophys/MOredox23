@@ -1,37 +1,48 @@
 % EL
 % Original: August 2022
-% Updated: 02-22-2024
+% Updated: 07-02-2024
 %
 % Determine Fe3/sumFe in MO as a function of given depth (P_GI) and given
 % efficiency (eff) for the last giant impact (GI)
+%
+% Creates data for Figure 3 in MO redox manuscript. Use this data in the
+% corresponding ***_fig.m file to output the figure. This script outputs a
+% figure, but it is unpolished.
 
 clear;
 
 % PARAMETERS
-model = 4;                          %accretion models, 4 = H04, 5 = N21
-r_0_idx = 3;                        %index for r_0, 1=0th, 2=1st, 3=5th... 8=99th, 9=100th
-compSheet_earth = 'H04_E';     %sheet in Compositions.xlsx to use for composition
-compSheet_imp = 'H04_imp';
-Tp_type = 'Pmo';               %constant, Pmo, or U2Q method
-    T0 = 1613;                          %initial temp for U2Q
+model = 5;                          %accretion models, 4 = H04, 5 = N21
+r_0_idx = 2;                        %index for r_0, 1=0th, 2=1st, 3=5th... 8=99th, 9=100th
+compSheet_earth = 'N21_E';     %sheet in Compositions.xlsx to use for composition
+compSheet_imp = 'N21_imp';
+Tp_type = 'Pmo';               %constant or Pmo
 dP = 0.5e9;                         %[Pa] increments of P for layer to do metal rain calculation
 
-sheet_nomix = 'H04_5th_nomix';     %sheet name to record data
-sheet_mix = 'H04_5th_mix';
-dataSheet = 'H04_data';
+sheet_nomix = 'N21_1st_nomix';     %sheet name to record data
+sheet_mix = 'N21_1st_mix';
+dataSheet = 'N21_data';
 fileOut = 'Rain_EffvsD_Pmo.xlsx';       % file name
-write = 1;                          %1 to write, else to not write to file
+write = 0;                          %1 to write, else to not write to file
 
 %CHOOSE YOUR Fe3/sumFe VALUE BEFORE GI
-%         [0th    1st    5th    25th   50th   75th   95th   99th   100th]
-if model == 4   % column UG in Rain_MC.xlsx WITH FIRST COLUMN AS LABELS!
+%                 [0th    1st    5th    25th   50th   75th   95th   99th   100th]
+if model == 4   % column UF in Rain_MC.xlsx
     %H04
-    %r_0 = [0.0780,0.0828,0.0913,0.1043,0.1129,0.1211,0.1286,0.1311,0.1324];    %Tconst
-    r_0 = [0.0460,0.0549,0.0704,0.0987,0.1168,0.1327,0.1471,0.1515,0.1559];    %Pmo
-elseif model == 5    % column OU WITH FIRST COLUMN AS LABELS!
+    switch Tp_type
+        case 'constant'
+            r_0 = [0.0695,0.0781,0.0878,0.1009,0.1101,0.1189,0.1271,0.1299,0.1314];    %Tconst
+        case 'Pmo'
+            r_0 = [0.0365,0.0523,0.0709,0.0963,0.1156,0.1316,0.1470,0.1510,0.1538];    %Pmo
+    end
+elseif model == 5    % column OT
     %N21
-    %r_0 = [0.0382,0.0718,0.0834,0.0966,0.1059,0.1116,0.1239,0.1290,0.1310];    %Tconst
-    r_0 = [0.0338,0.0383,0.0422,0.0602,0.0794,0.1050,0.1273,0.1346,0.1362];    %Pmo
+    switch Tp_type
+        case 'constant'
+            r_0 = [0.0513,0.0694,0.0836,0.0958,0.1042,0.1104,0.1204,0.1275,0.1298];    %Tconst
+        case 'Pmo'
+            r_0 = [0.0351,0.0388,0.0432,0.0611,0.0796,0.1040,0.1265,0.1334,0.1357];    %Pmo
+    end
 else
     disp('No r_0 values for model chosen')
 end
@@ -43,13 +54,11 @@ PV_data = readmatrix('/db/PVcalc.xlsx');
 Adiabat_data = readmatrix('\db\geotherms_combo.xlsx');
 CompEarth_data = readmatrix('\db\Compositions.xlsx', 'Sheet', compSheet_earth);
 CompImp_data = readmatrix('\db\Compositions.xlsx', 'Sheet', compSheet_imp);
-MolW_byM_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11', 'Range', 'B2:B13');
-MolW_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11', 'Range', 'C2:C13');
+MolW_byM_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11_Emantle', 'Range', 'B2:B13');
+MolW_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11_Emantle', 'Range', 'C2:C13');
 
 % CONSTANTS
-Cp = 1e3;               %[J/kgK] specific heat 
 M_E_0 = 5.97e24;        %[kg] present day mass of Earth
-M_c_0 = 1.88e24;        %[kg] present day mass of core
 rho_imp = 5000;         %[kg/m^3] approximation based on weighted average (0.68Si + 0.32Fe)
 
 % SET UP ACCRETION MODEL
@@ -59,30 +68,24 @@ GI_idx = find(diff(Accr_model),1,'last');         %we only want for GI
 M_E = M_E_0 * Accr_model(GI_idx);
 M_imp = M_E_0 * (Accr_model(GI_idx+1)-Accr_model(GI_idx));
 
-FeO_E = CompEarth_data(5,GI_idx);
+FeO_E = CompEarth_data(7,GI_idx);
 
-% assume core and mantle take up proportional mass of Earth
-M_c = M_E * M_c_0/M_E_0;    %core
-M_m = M_E - M_c;            %mantle
-M_m_post = M_E_0*Accr_model(GI_idx+1) - M_c_0*Accr_model(GI_idx+1);
+% core/mantle evolution
+M_c_ratio = CompEarth_data(2,:);
+M_c = M_E * M_c_ratio(GI_idx);    %core
+M_m = M_E - M_c;                  %mantle
+M_m_post = M_E_0*Accr_model(GI_idx+1) - M_E*M_c_ratio(GI_idx+1);
 
 % Rubie+2011, approximations for mantle and core densities
 rho_m = (4500-3400)*Accr_model+3400;     %scales with planetary mass, use 3400 for upper mantle density for silicate as initial
 rho_c = 2.5 * rho_m;
 
-V_c = M_c/rho_c(GI_idx);                           %volume of core
-V_m = M_m/rho_m(GI_idx);                           %volume of mantle
-R_E = (3/(4*pi)*(V_m + V_c))^(1/3);                %radius of Earth
-R_imp = (3/(4*pi)*M_imp/rho_imp)^(1/3);            %radius of impactor 
-
-Fe_ratio = 0.321;               % [] weight % of iron on Earth/impactor
-Si_ratio = 1-Fe_ratio;          % [] weight % of silicate on Earth/impactor
-M_c_imp = M_imp*Fe_ratio;       % [kg] approximate proportion metal mass of impactor
-M_m_imp = M_imp*Si_ratio;       % [kg] approximate proportion silicate mass of impactor
+M_c_imp = M_E_0*Accr_model(GI_idx+1)*M_c_ratio(GI_idx+1) - M_c;
+M_m_imp = M_imp - M_c_imp;
 
 %estimated Fe3+/sumFe for impactor, based on Rubie+2011, Supp. Table 3a
-r_imp = CompImp_data(3,GI_idx)+0.35/8.2;
-FeO_imp = CompImp_data(2,GI_idx);
+r_imp = CompImp_data(5,GI_idx);
+FeO_imp = CompImp_data(4,GI_idx);
 
 % Use half impactor core mass between pre- and post-impact to determine R_c at impact
 % Use entire mantle mass for chemical mixing post-impact
@@ -131,15 +134,6 @@ for k = 1:length(eff)          % for each efficiency
                 Tp = getMOTp(P_GI(j)/1e9, Adiabat_data);
             case 'constant'
                 Tp = 3500;
-            case 'U2Q'
-                Tp_mo_base = getMOTp(P_GI(j)/1e9, Adiabat_data);
-                
-                Tf_test = calcTforU2Q(T0,Cp,M_E,M_c,M_imp,R_E,R_imp,Si_ratio,0.2);
-                if Tf_test > Tp_mo_base
-                    Tp = Tp_mo_base;
-                else
-                    Tp = Tf_test;
-                end
             otherwise
                 disp('Could not calculate Tp based on input Tp_type')
                 Tp = NaN;
@@ -152,17 +146,15 @@ for k = 1:length(eff)          % for each efficiency
         PV = calcPV(Tad,P,PV_data);
         
         % CALCULATE Fe3+/sumFe EQUILIBRIUM RATIO AS FUNCTION OF P,T,dIW
-        [r_eq,~] = calcFeRatio(Tad, P, PV, CompEarth_data(:,GI_idx+1), MolW_data, MolW_byM_data);
+        [r_eq,~] = calcFeRatio(Tad, P, PV, CompEarth_data(3:end,GI_idx+1), MolW_data, MolW_byM_data);
      
         % METAL RAIN CALCULATION FOR THIS TIME STEP
         R_mo = interp1(P_check, R, P_GI(j));
         M_mo = rho_m(GI_idx+1) * 4/3*pi*(R_E_post^3 - R_mo^3);        %approximate mass of spherical shell MO
     
         % initial Fe ratio of mantle after mixing previous silicate with impactor silicate
-        %r_m(1) = ((M_mo-M_m_imp)*r_0(r_0_idx)+M_m_imp*r_imp)/(M_mo);
         r_m(1) = ((M_mo-M_m_imp)*FeO_E*r_0(r_0_idx)+M_m_imp*FeO_imp*r_imp)/((M_mo-M_m_imp)*FeO_E + M_m_imp*FeO_imp);
         FeO_mo = ((M_mo-M_m_imp)*FeO_E + M_m_imp*FeO_imp)/M_mo;
-        %disp(['Initial Fe3+/sumFe MO = ', num2str(r_m(1)), ' and FeO of MO = ', num2str(FeO_mo)]);
         
         dMp = min(dMp_temp*eff(k), M_mo);                               %silicate mass eq'd with given efficiency
         
@@ -174,19 +166,9 @@ for k = 1:length(eff)          % for each efficiency
         end
         
         % final r from mixing redox'd MO with whole mantle
-        %r_m_mix = (M_mo*r_m(idx) + (M_m_post-M_mo)*r_0(r_0_idx))/M_m_post;
         r_m_mix = (M_mo*FeO_mo*r_m(idx)+(M_m_post-M_mo)*FeO_E*r_0(r_0_idx))/(M_mo*FeO_mo + (M_m_post-M_mo)*FeO_E);
         
         FeO_f = (M_mo*FeO_mo+(M_m_post-M_mo)*FeO_E)/(M_m_post);
-        
-        
-        % if j == 100
-        %     %figure(2);
-        %     %hold on
-        %     %scatter(eff(k),r_m(1))
-        %     disp([num2str(r_m(idx)), ' before and ', num2str(r_m_mix), ' after mixing'])
-        %     disp(['FeO wt% = ', num2str(FeO_f)])
-        % end
 
         effvsd_nomix(j,k) = r_m(idx);
         effvsd_mix(j,k) = r_m_mix;
@@ -204,18 +186,11 @@ if write == 1
     writematrix(P_GI, fileOut, 'Sheet', dataSheet, 'WriteMode', 'append')
 end
 
-%range for post-Cr oxidation = modern day mantle FeO*
-r_low_f = 0.02;
-r_high_f = 0.06;
-
-%range for pre-Cr oxidation with 8.1% FeO* from Deng20 composition
-r_low_0 = r_low_f + 0.35/8.2;
-r_high_0 = r_high_f + 0.35/8.2;
 
 %contours
 c = linspace(0.01, 0.2, 20);
 ct = [0.02 0.04 0.06 0.07 0.08 0.09 0.10 0.11 0.12 0.13 0.14 0.15 0.16];
-c0 = [0.02 0.03 0.04 0.05 0.06];
+c0 = [0.02 0.06];
 
 % THIS MAY OR MAY NOT WORK :)
 figure('Position', [200 200 500 400]);
@@ -230,8 +205,8 @@ ax2.Visible = 'off';
 ax2.XTick = [];
 ax2.YTick = [];
 
-map = [0.88 0.88 0.88; 0.80 0.80 0.80; 0.72 0.72 0.72; 1 1 1; 1 1 1];   %use depending on # of contours
-%map = [0.72 0.72 0.72; 1 1 1; 1 1 1];                                      
+map = [0.82 0.82 0.82; 1 1 1];   
+%map = [1 1 1];                                      
 colormap(ax1, map)
 colormap(ax2, flipud(colormap(ax2,cool)));
 

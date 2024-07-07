@@ -17,9 +17,9 @@ P_short = zeros(226,length(geotherms));
 
 for j = 1:length(geotherms)
     data = readmatrix('/db/geotherms.xlsx', 'Sheet', geotherms(j));
-    T(:,j) = data(:,4);         
+    T(:,j) = data(2:end,4);         
     T_short(:,j) = T(1:226);     
-    P(:,j) = data(:,2);
+    P(:,j) = data(2:end,2);
     P_short(:,j) = P(1:226);
 end
 
@@ -27,7 +27,7 @@ end
 IW_eval = zeros(length(P),length(geotherms));
 for j = 1:length(geotherms)                               %j index for geotherms, i index for P
     for i = 1:length(P)
-        IW_eval(i,j) = getIW_H21(P(i,j),T(i,j));
+        IW_eval(i,j) = getIW_H21(P(i,j)*1e9,T(i,j));
     end
 end
 

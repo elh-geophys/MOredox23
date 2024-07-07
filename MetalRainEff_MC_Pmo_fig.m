@@ -1,9 +1,14 @@
 % EL
 % August 2022
-% Updated Sept 2023
+% Updated July 2024
 % 
 % Creates figure for metal rain model as Fe ratio vs time, MC results ONLY.
-% Uses data from Rain_***.xlsx, which is created by Ratios_MetalRain_***.m
+% Uses data from Rain_MC.xlsx, which is created by Ratios_MetalRain_MC.m
+%
+% Creates the Supplementary Fig compliment (Pmo results) of Figure 2 in MO redox manuscript.
+%
+% To output as vector file:
+% print(gcf,'-vector','-dsvg',['MC_Tconst','.svg'])
 
 reset = 1;          % change value to 1 for initialization of data.
 
@@ -18,27 +23,27 @@ if reset == 1
         
     % the MC results
     data = readmatrix('\db\Rain_MC.xlsx', 'Sheet', sheet_r1);
-    r_0p_1 = data(2,2:end);          %the first row is t
-    r_1p_1 = data(3,2:end);
-    r_5p_1 = data(4,2:end);
-    r_25p_1 = data(5,2:end);
-    r_50p_1 = data(6,2:end);
-    r_75p_1 = data(7,2:end);
-    r_95p_1 = data(8,2:end);
-    r_99p_1 = data(9,2:end);
-    r_100p_1 = data(10,2:end);
+    r_0p_1 = data(2,:);          %the first row is t
+    r_1p_1 = data(3,:);
+    r_5p_1 = data(4,:);
+    r_25p_1 = data(5,:);
+    r_50p_1 = data(6,:);
+    r_75p_1 = data(7,:);
+    r_95p_1 = data(8,:);
+    r_99p_1 = data(9,:);
+    r_100p_1 = data(10,:);
         
     % the MC results
     data = readmatrix('\db\Rain_MC.xlsx', 'Sheet', sheet_r2);
-    r_0p_2 = data(2,2:end);          %the first row is t
-    r_1p_2 = data(3,2:end);
-    r_5p_2 = data(4,2:end);
-    r_25p_2 = data(5,2:end);
-    r_50p_2 = data(6,2:end);
-    r_75p_2 = data(7,2:end);
-    r_95p_2 = data(8,2:end);
-    r_99p_2 = data(9,2:end);
-    r_100p_2 = data(10,2:end);
+    r_0p_2 = data(2,:);          %the first row is t
+    r_1p_2 = data(3,:);
+    r_5p_2 = data(4,:);
+    r_25p_2 = data(5,:);
+    r_50p_2 = data(6,:);
+    r_75p_2 = data(7,:);
+    r_95p_2 = data(8,:);
+    r_99p_2 = data(9,:);
+    r_100p_2 = data(10,:);
 
 end
 

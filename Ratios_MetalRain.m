@@ -1,6 +1,6 @@
-% EL
+% ELH
 % Original: July 2022
-% Updated: 2024-02-21           ah yes, almost 2 years later.
+% Updated: 2024-06-28
 %
 % Iron droplet equilibrium through MO during accretion with given
 % efficiency and depth of equilibration
@@ -18,8 +18,8 @@ clear;
 % PARAMETERS TO CHANGE
 model = 4;                      %accretion models, 1 = W90(high), 2 = W90(low), 3 = H00, 4 = H04, 5 = N21
 r_0 = 0.004;                    %initial Fe3+/sumFe for Earth
-eff = 1;                        %[] efficiency factor for droplet equilibrium, 1 = 100%
-d_mo_factor = 1;                %[] fraction of Pcmb pressure for MO base pressure
+eff = 0.1;                        %[] efficiency factor for droplet equilibrium, 1 = 100%
+d_mo_factor = 0.1;                %[] fraction of Pcmb pressure for MO base pressure
 compSheet_earth = 'H04_E';           %sheet in Compositions.xlsx to use for composition
 compSheet_imp = 'H04_imp';
 Tp_type = 'constant';           %chooose method to calculate Tp, either 'Pmo', 'U2Q', or 'constant'
@@ -39,15 +39,14 @@ PV_data = readmatrix('/db/PVcalc.xlsx');
 Adiabat_data = readmatrix('\db\geotherms_combo.xlsx');
 CompEarth_data = readmatrix('\db\Compositions.xlsx', 'Sheet', compSheet_earth);
 CompImp_data = readmatrix('\db\Compositions.xlsx', 'Sheet', compSheet_imp);
-MolW_byM_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11', 'Range', 'B2:B13');
-MolW_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11', 'Range', 'C2:C13');
+MolW_byM_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11_Emantle', 'Range', 'B2:B13');
+MolW_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11_Emantle', 'Range', 'C2:C13');
 
-FeO_E = CompEarth_data(5,:);
+FeO_E = CompEarth_data(7,:);
 
 % CONSTANTS
 Cp = 1e3;               %[J/kgK] specific heat 
 M_E_0 = 5.97e24;        %[kg] present day mass of Earth
-M_c_0 = 1.88e24;        %[kg] present day mass of core
 rho_imp = 5000;         %[kg/m^3] approximation based on weighted average (0.68Si + 0.32Fe)
 
 % SET UP ACCRETION MODEL
@@ -57,9 +56,13 @@ M_imp = M_E_0 * diff(Accr_model);
 
 % note: during impact "n", earth mass is "n" pre-impact and "n+1" post-impact
 
-% assume core and mantle take up proportional mass of Earth
-M_c = M_E * M_c_0/M_E_0;    %core
-M_m = M_E - M_c;            %mantle
+% determine the core and mantle masses, volumes, sizes
+M_c_ratio = CompEarth_data(2,:);
+M_c = M_E .* M_c_ratio;      %Earth core
+M_m = M_E - M_c;            %Earth mantle
+
+M_c_imp = diff(M_c);
+M_m_imp = M_imp - M_c_imp;
 
 % Rubie+2011, approximations for mantle and core densities
 rho_m = (4500-3400)*Accr_model+3400;     %scales with planetary mass, use 3400 for upper mantle density for silicate as initial
@@ -67,18 +70,13 @@ rho_c = 2.5 * rho_m;
 
 V_c = M_c./rho_c;                           %volume of core
 V_m = M_m./rho_m;                           %volume of mantle
-R_E = (3/(4*pi)*(V_m + V_c)).^(1/3);        %radius of Earth
-R_imp = (3/(4*pi)*M_imp/rho_imp).^(1/3);    %radius of impactor 
-
-Fe_ratio = 0.321;               % [] weight % of iron on Earth/impactor
-Si_ratio = 1-Fe_ratio;          % [] weight % of silicate on Earth/impactor
-M_c_imp = M_imp*Fe_ratio;       % [kg] approximate proportion metal mass of impactor
-M_m_imp = M_imp*Si_ratio;       % [kg] approximate proportion silicate mass of impactor
+R_E = (3/(4*pi)*(V_m + V_c)).^(1/3);        %radius of Earth (used in U2Q method)
+R_imp = (3/(4*pi)*M_imp/rho_imp).^(1/3);    %radius of impactor (used in U2Q method)
 
 %estimated Fe3+/sumFe for impactor, based on Rubie+2011, Supp. Table 3a
 %determined from getCompositions.m
-r_imp = CompImp_data(3,:);
-FeO_imp = CompImp_data(2,:);
+r_imp = CompImp_data(5,:);
+FeO_imp = CompImp_data(4,:);
 
 % Use half impactor core mass between pre- and post-impact to determine R_c at impact
 % Use entire mantle mass for chemical mixing post-impact
@@ -90,7 +88,7 @@ R_c_post = (3/(4*pi)*(M_c_post./rho_c_post)).^(1/3);    %radius of core post imp
 R_E_post = (3/(4*pi)*(M_m(2:end)./rho_m(2:end) + M_c_post./rho_c_post)).^(1/3);
 
 % radius of Earth w/ no impactor Si (M_m pre-impact), but 1/2 impactor Fe;
-% upper bound for MO radius with all impactor as melt
+% upper bound for MO radius with ONLY impactor as melt
 R_E_post_noimp = (3/(4*pi)*(M_m(1:end-1)./rho_m(2:end) + M_c_post./rho_c_post)).^(1/3);
 
 %T&S Geodyanm Eqn 2.73, Pressure as a function radius from center
@@ -99,9 +97,9 @@ P_cmb = zeros(1,length(M_imp));
 for i = 1:length(M_imp)
     P_cmb(i) = get2LayerP(rho_m(i+1), rho_c_post(i), R_E_post(i), R_c_post(i), R_c_post(i));
 end
-P_cmb(isnan(P_cmb))=0;          %for some accretion models, where P=0 at t=0
-P_cmb_max = round(P_cmb(end),-9);
-P_length_max = P_cmb_max/dP+1;             %to go by dP and +1 for end points :)
+P_cmb(isnan(P_cmb))=0;              %for some accretion models, where P=0 at t=0
+P_cmb_max = round(P_cmb(end),-9);   %round to get nearest GPa value
+P_length_max = P_cmb_max/dP+1;       %to go by dP and +1 for end points :)
 
 % determine the minimum pressure without impactor melt
 P_min = zeros(1,length(M_imp));
@@ -110,15 +108,14 @@ for i = 1:length(M_imp)
 end
 P_min(isnan(P_min))=0;          %for some accretion models, where P=0 at t=0
 
-[M_eq] = calcEqSi(M_c_imp, 'sph');   % Si equilibrated mass (maximum)
+[M_eq] = calcEqSi(M_c_imp, 'sph');   % Si equilibrated mass (maximum) given metal mass accreted
 dMp_temp = M_eq*eff;
 
 r_m_Dt = zeros(1,length(t));        %final Fe3+/sumFe of mantle over evolution time
 r_m_Dt(1) = r_0;
-r_m = zeros(P_length_max+1,1);        %temp Fe3+/sumFe for each iteration of fall time (+1 b/c of initial mixing of mantle & impactor)
-r_m(1) = r_0;
+r_m = zeros(P_length_max+1,1);      %temp Fe3+/sumFe for each iteration of fall time (+1 b/c of initial mixing of mantle & impactor)
 
-for j = 1:length(t)-1                 % j index for evolution time, where j=impact point, j+1=after impact
+for j = 1:length(t)-1               % j index for evolution time, where j=impact point, j+1=after impact
     if M_imp(j) > 0
         
         % CHOOSE MAGMA OCEAN DEPTH
@@ -131,16 +128,17 @@ for j = 1:length(t)-1                 % j index for evolution time, where j=impa
         end
         
         % DETERMINE MAGMA OCEAN GEOTHERM
-        Tp_mo_base = getMOTp(P_mo/1e9, Adiabat_data);
         
         switch Tp_type
             case 'Pmo'
                 % choice where Tp is based on full MO being at above liquidus
+                Tp_mo_base = getMOTp(P_mo/1e9, Adiabat_data);
                 Tp = Tp_mo_base;
                 
             case 'U2Q'
                 % choice where Tp is based on increasing temperature from T0 due to impact GPE
                 % if Tp turns out to be > Tp_mo_base, then take it all as molten 
+                Tp_mo_base = getMOTp(P_mo/1e9, Adiabat_data);
                 Tf_test = calcTforU2Q(T0,Cp,M_E(j),M_c(j),M_imp(j),R_E(j),R_imp(j),Si_ratio,epsilon);
 
                 if Tf_test > Tp_mo_base
@@ -166,12 +164,15 @@ for j = 1:length(t)-1                 % j index for evolution time, where j=impa
         
         % CALCULATE Fe3+/sumFe EQUILIBRIUM RATIO AS FUNCTION OF P,T,dIW
         % Use post-impact comp and dIW
-        [r_eq,dIW] = calcFeRatio(Tad, P, PV, CompEarth_data(:,j+1), MolW_data, MolW_byM_data);
+        [r_eq,dIW] = calcFeRatio(Tad, P, PV, CompEarth_data(3:end,j+1), MolW_data, MolW_byM_data);
         disp([num2str(round(Tp)), 'K and ', num2str(dIW)])
         
         % METAL RAIN CALCULATION FOR THIS TIME STEP
         R = linspace(R_c_post(j),R_E_post(j),1000);
         P_check = get2LayerP(rho_m(j+1), rho_c_post(j), R_E_post(j), R_c_post(j), R);
+        if P_mo > P_check(1)
+            P_mo = P_check(1);   %the rare floating point issue, when d_mo_factor = 1 and P_mo isn't exactly P_check(1) as it should be
+        end
         R_mo = interp1(P_check, R, P_mo);
         M_mo = rho_m(j+1) * 4/3*pi*(R_E_post(j)^3 - R_mo^3);        %approximate mass of spherical shell MO
             
@@ -180,6 +181,10 @@ for j = 1:length(t)-1                 % j index for evolution time, where j=impa
         FeO_mo = ((M_mo-M_m_imp(j))*FeO_E(j) + M_m_imp(j)*FeO_imp(j))/M_mo;
         disp(['Initial Fe3+/sumFe MO = ', num2str(r_m(1)), ' and FeO of MO = ', num2str(FeO_mo)]);
         
+        if isnan(r_m(1))
+            disp('r_m = nan')
+        end 
+
         dMp = min(dMp_temp(j), M_mo);       %take minimum between equilibrated mass & magma ocean mass
         
         for i = 1:length(P)                 % droplets falling through mantle time, r_m(1) = previous iteration's r_m(end)
@@ -198,9 +203,8 @@ for j = 1:length(t)-1                 % j index for evolution time, where j=impa
         plot(r_eq, 'k--')
         plot(r_m, 'm')
         
-        %r_m_Dt(j+1) = (M_mo*r_m(idx) + (M_m(j+1)-M_mo)*r_m_Dt(j))/(M_m(j+1));
         r_m_Dt(j+1) = (M_mo*FeO_mo*r_m(idx)+(M_m(j+1)-M_mo)*FeO_E(j)*r_m_Dt(j))/(M_mo*FeO_mo + (M_m(j+1)-M_mo)*FeO_E(j));
-        disp([num2str(r_m(idx)), ' before and ', num2str(r_m_Dt(j+1)), ' after mixing'])
+        disp(['Fe3+/sumFe is ', num2str(r_m(idx)), ' before and ', num2str(r_m_Dt(j+1)), ' after mixing'])
 
         FeO_f = (M_mo*FeO_mo+(M_m(j+1)-M_mo)*FeO_E(j))/(M_m(j+1));
         figure(2);

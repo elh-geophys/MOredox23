@@ -1,7 +1,8 @@
 % EL
 % Original: Aug 2022
-% Updated: Feb 2024
+% Updated: July 2024
 %      - updated FeO tracking and dIW
+%      - updated with new compositions
 %
 % Function for getting metal rain ratio with varying depth and
 % efficiencies.  Use for mass sampling.
@@ -38,7 +39,6 @@ function [r_m_Dt, eff_out, P_mo_out] = getRainRatio_constT(P_cmb, P_min, dP, r_0
     r_m_Dt = zeros(1,length(Accr_model));      % final Fe3+/sumFe of mantle over evolution time
     r_m_Dt(1) = r_0;
     r_m = zeros(P_length_max+1,1);        %temp Fe3+/sumFe for each iteration of fall time
-    r_m(1) = r_0;
     
     eff_out = zeros(1, length(Accr_model));      % to record random efficiencies
     P_mo_out = zeros(1, length(Accr_model));     % to record random depth of melting
@@ -46,10 +46,10 @@ function [r_m_Dt, eff_out, P_mo_out] = getRainRatio_constT(P_cmb, P_min, dP, r_0
     PV_data = readmatrix('/db/PVcalc.xlsx');
     Adiabat_data = readmatrix('\db\geotherms_combo.xlsx');
     CompEarth_data = readmatrix('\db\Compositions.xlsx', 'Sheet', compSheet_earth);
-    MolW_byM_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11', 'Range', 'B2:B13');
-    MolW_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11', 'Range', 'C2:C13');
+    MolW_byM_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11_Emantle', 'Range', 'B2:B13');
+    MolW_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11_Emantle', 'Range', 'C2:C13');
     
-    FeO_E = CompEarth_data(5,:);
+    FeO_E = CompEarth_data(7,:);
 
     for j = 1:length(Accr_model)-1      % earth evolution time
 
@@ -80,11 +80,14 @@ function [r_m_Dt, eff_out, P_mo_out] = getRainRatio_constT(P_cmb, P_min, dP, r_0
             PV = calcPV(Tad,P,PV_data);
 
             % CALCULATE Fe3+/sumFe EQUILIBRIUM RATIO AS FUNCTION OF P,T,dIW
-            [r_eq,~] = calcFeRatio(Tad, P, PV, CompEarth_data(:,j+1), MolW_data, MolW_byM_data);
+            [r_eq,~] = calcFeRatio(Tad, P, PV, CompEarth_data(3:end,j+1), MolW_data, MolW_byM_data);
             
             % METAL RAIN CALCULATION FOR THIS TIME STEP
             R = linspace(R_c_post(j),R_E_post(j),1000);
             P_check = get2LayerP(rho_m(j+1), rho_c_post(j), R_E_post(j), R_c_post(j), R);
+            if P_mo > P_check(1)
+                P_mo = P_check(1);   %the rare floating point issue, when d_mo_factor = 1 and P_mo isn't exactly P_check(1) as it should be
+            end
             R_mo = interp1(P_check, R, P_mo);
             M_mo = rho_m(j+1) * 4/3*pi*(R_E_post(j)^3 - R_mo^3);        %approximate mass of spherical shell MO
         
