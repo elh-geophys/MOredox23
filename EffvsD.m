@@ -23,7 +23,7 @@ sheet_nomix = 'N21_1st_nomix';     %sheet name to record data
 sheet_mix = 'N21_1st_mix';
 dataSheet = 'N21_data';
 fileOut = 'Rain_EffvsD_Pmo.xlsx';       % file name
-write = 0;                          %1 to write, else to not write to file
+write = 1;                          %1 to write, else to not write to file
 
 %CHOOSE YOUR Fe3/sumFe VALUE BEFORE GI
 %                 [0th    1st    5th    25th   50th   75th   95th   99th   100th]
@@ -39,9 +39,9 @@ elseif model == 5    % column OT
     %N21
     switch Tp_type
         case 'constant'
-            r_0 = [0.0513,0.0694,0.0836,0.0958,0.1042,0.1104,0.1204,0.1275,0.1298];    %Tconst
+            r_0 = [0.0569,0.0644,0.0804,0.0953,0.1047,0.1108,0.1210,0.1267,0.1289];    %Tconst
         case 'Pmo'
-            r_0 = [0.0351,0.0388,0.0432,0.0611,0.0796,0.1040,0.1265,0.1334,0.1357];    %Pmo
+            r_0 = [0.0311,0.0367,0.0426,0.0615,0.0793,0.1052,0.1285,0.1338,0.1362];    %Pmo
     end
 else
     disp('No r_0 values for model chosen')

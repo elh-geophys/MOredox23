@@ -1,6 +1,6 @@
 % ELH
 % 02-15-2024
-% Updated 6/30/24
+% Updated 7/8/2024
 
 % parameterizing Rubie+2011 Fig 4b and using data from Table S3a and S3b
 % to get the impactor Fe3+/sumFe and Earth composition over time (tracking FeO
@@ -8,16 +8,19 @@
 
 % outputs a file for impactor SiO2, FeO, Fe3+/sumFe, and Earth composition
 % over time for a given model.
+%
+% To check N21, use F_temp/2 in figures.
+
 
 clear;
 clf;
 
 % INPUTS
-model = 4;                      %accretion models, 4 = H04, 5 = N21
-write = 0;
+model = 5;                      %accretion models, 4 = H04, 5 = N21
+write = 1;
     fileOut = "Compositions.xlsx";
-    sheetNameE = "H04_E";
-    sheetNameImp = "H04_Imp";
+    sheetNameE = "N21_E";
+    sheetNameImp = "N21_Imp";
 
 % Rubie+2011 FeO data for accreting Earth, from Table S3a
 data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11_Emantle');
@@ -129,7 +132,7 @@ subplot(1,2,1)
 hold on
 box on
 plot(Accr_model, OxiWts(5,:), 'r.', 'MarkerSize', 8, 'DisplayName', 'Calculated')
-plot(F_temp, OxiWts_temp(5,:), 'k-', 'DisplayName', 'From R11 data')
+plot(F_temp/2, OxiWts_temp(5,:), 'k-', 'DisplayName', 'From R11 data')
 xlim([0 1])
 xlabel("Mass Fraction")
 ylabel("Wt %")
@@ -139,7 +142,7 @@ subplot(1,2,2)
 hold on
 box on
 plot(Accr_model, MetalWts(1,:), 'r.', 'MarkerSize', 8)
-plot(F_temp, MetalWts_temp(1,:), 'k-')
+plot(F_temp/2, MetalWts_temp(1,:), 'k-')
 xlim([0 1])
 xlabel("Mass Fraction")
 ylabel("Wt %")
@@ -168,7 +171,7 @@ hold on
 box on
 %plot(Accr_model, dIW_E_simple, 'bo', "MarkerSize", 8, "DisplayName", "simple model")
 plot(Accr_model, dIW_E_long, 'r.', "MarkerSize", 8, "DisplayName", "Earth calc'd R11 params")
-plot(F_temp, dIW_R11, 'k-', "MarkerSize", 8, "DisplayName", "from R11 data")
+plot(F_temp/2, dIW_R11, 'k-', "MarkerSize", 8, "DisplayName", "from R11 data")
 xlabel("Mass fraction")
 ylabel("\DeltaIW")
 title("\DeltaIW during accretion")
@@ -226,7 +229,7 @@ subplot(2,2,1)
 hold on
 box on
 plot(Accr_model, M_c_ratio*100, 'r.', 'MarkerSize', 8, 'DisplayName', "Earth calc'd")
-plot(F_temp, M_c_ratio_temp, 'k-', 'DisplayName', 'From R11 data')
+plot(F_temp/2, M_c_ratio_temp, 'k-', 'DisplayName', 'From R11 data')
 plot(Accr_model(2:end), M_c_imp_ratio*100, 'b.', 'MarkerSize', 8, 'DisplayName', "Imp calc'd")
 ylabel("Core Mass (%)")
 xlabel("Mass Fraction")
@@ -262,7 +265,7 @@ MolSum =[];
 if model == 5
     Accr_model = 2*Accr_model;
     for i = 1:length(FeO_imp)
-        if FeO_imp(i) > 0 && Accr_model(i+1) <= 1.0
+        if FeO_imp(i) > 0 && Accr_model(i+1) <= 0.67
             OxiWts_imp(:,i) = OxiWts_early;
             OxiWts_imp(1,i) = 100 - (OxiWts_early(3)+OxiWts_early(7)+OxiWts_early(9)+FeO_imp(i));  %SiO2 content
             Si_imp(i) = OxiWts_imp(1,i);
@@ -273,6 +276,21 @@ if model == 5
             FeO_Mol_imp(i) = Mol(5);      %extract FeO mole fraction
 
             tempMol = MetalWts_early./MetalMolWts;
+            MolSum = sum(tempMol,1);
+            Mol_imp_core = tempMol./MolSum;
+            FeMol_imp(i) = Mol_imp_core(1);
+
+        elseif FeO_imp(i) > 0 && Accr_model(i+1) <= 1.0
+            OxiWts_imp(:,i) = OxiWts_late;
+            OxiWts_imp(1,i) = 100 - (OxiWts_late(3)+OxiWts_late(7)+OxiWts_late(9)+FeO_imp(i));  %SiO2 content
+            Si_imp(i) = OxiWts_imp(1,i);
+            OxiWts_imp(5,i) = FeO_imp(i);                                                                %FeO wt% content
+            tempMol = OxiWts_imp(:,i)./OxiMolWts;
+            MolSum = sum(tempMol);    %total moles
+            Mol = tempMol/MolSum;     %mole fraction
+            FeO_Mol_imp(i) = Mol(5);      %extract FeO mole fraction
+
+            tempMol = MetalWts_late./MetalMolWts;
             MolSum = sum(tempMol,1);
             Mol_imp_core = tempMol./MolSum;
             FeMol_imp(i) = Mol_imp_core(1);
@@ -400,7 +418,7 @@ end
 
 FeRatio_imp(FeRatio_imp==0) = NaN;   % so it doesn't plot the zeros
 
-data = readmatrix('\db\Compositions_old.xlsx', 'Sheet', 'H04_imp');
+data = readmatrix('\db\Compositions_old.xlsx', 'Sheet', 'N21_imp');
 FeRatio_imp_old = data(3,:);
 FeO_imp_old = data(2,:);
 FeRatio_imp_old(FeRatio_imp_old==0) = NaN;

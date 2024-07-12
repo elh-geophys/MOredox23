@@ -10,7 +10,7 @@
 % To output as vector file:
 % print(gcf,'-vector','-dsvg',['MC_Tconst','.svg'])
 
-reset = 0;          % change value to 1 for initialization of data.
+reset = 1;          % change value to 1 for initialization of data.
 
 if reset == 1
     clear;
@@ -23,7 +23,7 @@ if reset == 1
         
     % the MC results
     data = readmatrix('\db\Rain_MC.xlsx', 'Sheet', sheet_r1);
-    r_0p_1 = data(2,:);          %the first row is t       Also, be sure first column is labels (manually added)
+    r_0p_1 = data(2,:);          %the first row is t
     r_1p_1 = data(3,:);
     r_5p_1 = data(4,:);
     r_25p_1 = data(5,:);

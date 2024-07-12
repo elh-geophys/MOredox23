@@ -19,14 +19,14 @@
 % just manually move around the oxidized/reduced arrows.
 
 
-reset = 1;      %reset=1 will read the file again
+reset = 0;      %reset=1 will read the file again
 
 if reset == 1
     clear;
     
     xlsx = '\db\Rain_EffvsD_Pmo.xlsx';
     
-    data = readmatrix(xlsx, 'Sheet', 'H04_data', 'Range', 1);
+    data = readmatrix(xlsx, 'Sheet', 'N21_data', 'Range', 1);
     P = data(2,:)/1e9;
     eff = data(1,1:28);
 
@@ -62,20 +62,20 @@ if reset == 1
     % 
 end
 
-mix = H04_p1_mix-0.35/8.2;       %0.35% reduction in FeO1.5 after Cr oxi with 8.2% FeO*
-nomix = H04_p1_nomix-0.35/8.2;
+mix = N21_p1_mix-0.35/8.2;       %0.35% reduction in FeO1.5 after Cr oxi with 8.2% FeO*
+nomix = N21_p1_nomix-0.35/8.2;
 r0_val = 2;
-title_name = "H04: 1st Percentile";
+title_name = "N21: 1st Percentile";
 letter = "";
 
 %CHOOSE YOUR Fe3/sumFe VALUE BEFORE GI
 %         [0th    1st    5th    25th   50th   75th   95th   99th   100th]
 %H04
     %r_0 = [0.0695,0.0781,0.0878,0.1009,0.1101,0.1189,0.1271,0.1299,0.1314];    %Tconst
-    r_0 = [0.0365,0.0523,0.0709,0.0963,0.1156,0.1316,0.1470,0.1510,0.1538];    %Pmo
+    %r_0 = [0.0365,0.0523,0.0709,0.0963,0.1156,0.1316,0.1470,0.1510,0.1538];    %Pmo
 %N21
-    %r_0 = [0.0513,0.0694,0.0836,0.0958,0.1042,0.1104,0.1204,0.1275,0.1298];    %Tconst
-    %r_0 = [0.0351,0.0388,0.0432,0.0611,0.0796,0.1040,0.1265,0.1334,0.1357];    %Pmo
+    %r_0 = [0.0569,0.0644,0.0804,0.0953,0.1047,0.1108,0.1210,0.1267,0.1289];   %Tconst
+    r_0 = [0.0311,0.0367,0.0426,0.0615,0.0793,0.1052,0.1285,0.1338,0.1362];    %Pmo
 
 % when I used to do different shades:
 %map = [0.88 0.88 0.88; 0.82 0.82 0.82; 0.78 0.78 0.78; 0.72 0.72 0.72; 1 1 1];   % chosen mix contour colors
@@ -135,10 +135,10 @@ ax1.YTickLabel = {'0.1%' '' '' '' '' '' '' '' '' ...
     '10%' '' '' '' '' '' '' '' '' ...
     '100%'};
 %text(5, -2.8, "r_0=" + round(r_0(r0_val),3), 'FontWeight', 'bold')
-%text(96, -0.15, "r_0=" + round(r_0(r0_val),3), 'FontWeight', 'bold')    %N21
-%text(96, -0.35, letter, 'FontWeight', 'bold', 'FontSize', 20)           %N21
-text(112, -2.88, "r_0=" + round(r_0(r0_val),3), 'FontWeight', 'bold')   %H04
-text(122, -2.65, letter, 'FontWeight', 'bold', 'FontSize', 20)          %H04
+text(96, -0.15, "r_0=" + round(r_0(r0_val),3), 'FontWeight', 'bold')    %N21
+text(96, -0.35, letter, 'FontWeight', 'bold', 'FontSize', 20)           %N21
+%text(112, -2.88, "r_0=" + round(r_0(r0_val),3), 'FontWeight', 'bold')   %H04
+%text(122, -2.65, letter, 'FontWeight', 'bold', 'FontSize', 20)          %H04
 
 % annotation('textarrow',[0.56 0.52],[0.45 0.30])
 % text(64.2, -2.38,'reduced MO','FontSize',8)

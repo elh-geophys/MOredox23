@@ -16,21 +16,21 @@
 clear;
 
 % PARAMETERS TO CHANGE
-model = 4;                      %accretion models, 1 = W90(high), 2 = W90(low), 3 = H00, 4 = H04, 5 = N21
+model = 5;                      %accretion models, 1 = W90(high), 2 = W90(low), 3 = H00, 4 = H04, 5 = N21
 r_0 = 0.004;                    %initial Fe3+/sumFe for Earth
 %eff = [1 2 3 4 5 6 7 8 9 10 20 30 40 50 60 70 80 90 100]/100;
 eff = [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1 2 3 4 5 6 7 8 9 10 20 30 40 50 60 70 80 90 100]/100;
 d_mo_factor = 0.05:0.05:1.0;                %[] fraction of Pcmb pressure for MO base pressure
 
-compSheet_earth = 'H04_E';      %sheet in Compositions.xlsx to use for composition
-compSheet_imp = 'H04_imp';
+compSheet_earth = 'N21_E';      %sheet in Compositions.xlsx to use for composition
+compSheet_imp = 'N21_imp';
 dP = 0.5e9;                     %[Pa] increments of P for layer to do metal rain calculation
 Tp_type = 'Pmo';                %chooose method to calculate Tp, either 'Pmo' or 'constant'
     Tp_const = 3500;            %[K] temperature to use for MO
 
-letter = 'c';                   %to put on figure
+letter = 'd';                   %to put on figure
 
-sheetOut = 'H04';               %sheet name to record data (use for graph title)
+sheetOut = 'N21';               %sheet name to record data (use for graph title)
 fileOut = 'Rain_const.xlsx';    %file name to record data (I haven't been writing to file b/c the output figure here is just fine)
 write = 0;                      %1 or 0, to write to file
 
@@ -224,8 +224,8 @@ ax1 = axes;    %shaded allowed region per modern-day estimates
 contourf(ax1, d_mo_factor, log10(eff), r_m_f_postCr', c0, 'LineWidth', 2, 'EdgeColor', 'none');
 
 ax2 = axes;    %contours of final Fe3+/sumFe
-contour(ax2, d_mo_factor, log10(eff), r_m_f', c, 'LineWidth', 2, 'ShowText', 'on', 'TextList', ct, 'LabelSpacing', 500, 'FaceColor', 'none');
-%contour(ax2, d_mo_factor, log10(eff), r_m_f_postCr', c, 'LineWidth', 2, 'ShowText', 'on', 'TextList', ct, 'LabelSpacing', 500, 'FaceColor', 'none');
+%contour(ax2, d_mo_factor, log10(eff), r_m_f', c, 'LineWidth', 2, 'ShowText', 'on', 'TextList', ct, 'LabelSpacing', 500, 'FaceColor', 'none');
+contour(ax2, d_mo_factor, log10(eff), r_m_f_postCr', c, 'LineWidth', 2, 'ShowText', 'on', 'TextList', ct, 'LabelSpacing', 500, 'FaceColor', 'none');
 
 ax3 = axes;    %negative Fe3+ limit
 contour(ax3, d_mo_factor, log10(eff), r_m_f_postCr', c_neg, 'LineWidth', 2, 'LineStyle', ':', 'FaceColor', 'none');

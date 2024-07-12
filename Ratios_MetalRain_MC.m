@@ -12,18 +12,18 @@ clear;
 tic
 
 % PARAMETERS TO CHANGE
-model = 4;                  %accretion models: 4 = H04, 5 = N21  (using a continous model like 1-3 will take a LONG time :) )
+model = 5;                  %accretion models: 4 = H04, 5 = N21  (using a continous model like 1-3 will take a LONG time :) )
 r_0 = 0.004;                %initial Fe3+/sumFe
-N = 200;                   %number of MC samples
-compSheet_earth = 'H04_E';           %sheet in Compositions.xlsx to use for composition
-compSheet_imp = 'H04_imp';
-Tp_type = 'constant';               %chooose method to calculate Tp, either 'Pmo', 'U2Q', or 'constant'
+N = 1000;                   %number of MC samples
+compSheet_earth = 'N21_E';           %sheet in Compositions.xlsx to use for composition
+compSheet_imp = 'N21_imp';
+Tp_type = 'Pmo';               %chooose method to calculate Tp, either 'Pmo', 'U2Q', or 'constant'
     Tp_const = 3500;                %[K] Tp for 'constant' method
 dP = 0.5e9;
 
-sheetOut = 'H04_const';            %sheet name to record data
+sheetOut = 'N21_Pmo';            %sheet name to record data
 fileOut = 'Rain_MC.xlsx';    % file name
-write = 0;                   %1 or 0, to write to file
+write = 1;                   %1 or 0, to write to file
 
 % ---------------------------------------------------------------------- %
 
