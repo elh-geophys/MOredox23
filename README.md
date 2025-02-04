@@ -2,7 +2,7 @@
 
 MATLAB code and data files for manuscript "Impact-driven redox stratification of Earth's mantle"
 
-Estefania Larsen, Yale University -- estefania.larsen@yale.edu -- Summer 2022-Spring 2024
+Estefania Larsen Henningsen, Yale University -- estefania.larsen@yale.edu -- Summer 2022-Fall 2024
 
 This code produces all data and figures from the manuscript and is a standalone repository. This code was originally written with MATLAB 2021a, but also works in v2023b. MATLAB's Optimization Toolbox may be necessary for some scripts to run.
 
