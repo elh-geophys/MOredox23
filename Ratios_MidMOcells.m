@@ -9,12 +9,12 @@ clear;
 
 % PARAMETERS TO CHANGE
 n = 20;         %[] number of convection cells
-Tm = 4500;      %[K] mantle potential temperature
+Tm = 3500;      %[K] mantle potential temperature
 compSheet = 'Deng20';           %sheet in MoleWeights.xlsx to use for composition
-Pbase = 135e9;    %[GPa] base of MO (25, 50, 75, 100, 135)
+Pbase = 75e9;    %[GPa] base of MO (25, 50, 75, 100, 135)
 dP = 0.5e9;         %[Pa] increments of P
 
-write = 1;
+write = 0;
 
 P = 0:dP:Pbase;
 

@@ -17,7 +17,7 @@ clf;
 
 % INPUTS
 model = 5;                      %accretion models, 4 = H04, 5 = N21
-write = 1;
+write = 0;
     fileOut = "Compositions.xlsx";
     sheetNameE = "N21_E";
     sheetNameImp = "N21_Imp";
@@ -210,10 +210,10 @@ title("Earth Evolution")
 
 data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'ImpEarly_mantle');
 OxiWts_early = data(:,2);
-data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'ImpLate_mantle');
+data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'ImpEarly_mantle');
 OxiWts_late = data(:,2);
 
-data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'ImpEarly_core');
+data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'ImpLate_core');
 MetalWts_early = data(1:6,2);
 %M_c_imp_early_ratio = data(7,2)/100;
 data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'ImpLate_core');

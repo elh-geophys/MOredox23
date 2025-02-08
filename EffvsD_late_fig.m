@@ -66,11 +66,11 @@ if reset == 1
     
 end
 
-mix = H04_1st_mix - 0.35/8.2;       %0.35% reduction in FeO1.5 after Cr oxi with 8.1% FeO*
-nomix = H04_1st_nomix - 0.35/8.2;
-r_0_idx = 1;                            %for r_0 to choose
-title_name = "H04: 1st Percentile";
-letter = "a";
+mix = H04_50th_mix - 0.35/8.2;       %0.35% reduction in FeO1.5 after Cr oxi with 8.1% FeO*
+nomix = H04_50th_nomix - 0.35/8.2;
+r_0_idx = 4;                            %for r_0 to choose
+title_name = "H04: 50th Percentile";
+letter = "d";
 
 %Fe3/sumFe value AFTER GI
 %Tconst method
@@ -84,9 +84,9 @@ r_0 = r_0_temp(r_0_idx)-0.35/8.2;
 %       0.2-0.3         0.3-0.4         0.4-0.5         0.5-0.6         rest
 %map = [0.88 0.88 0.88; 0.82 0.82 0.82; 0.78 0.78 0.78; 0.72 0.72 0.72; 1 1 1];
         
-map = [0.82 0.82 0.82; 1 1 1];          % chosen mix contour colors
+%map = [0.82 0.82 0.82; 1 1 1];          % chosen mix contour colors
 %map = [1 1 1; 0.82 0.82 0.82];
-%map = [1 1 1];                           % for no solution, check min(mix)
+map = [1 1 1];                           % for no solution, check min(mix)
 
 map_neg = [0 0 0];
 

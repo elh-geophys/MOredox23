@@ -10,18 +10,18 @@
 clear;
 
 Tp = [2500 3000 3500 4000 4500];
-P = 0:0.5e9:120e9;
-compSheet_earth = 'H04_E';          %sheet in MoleWeights.xlsx to use for composition, need end of accretion value
+P = 0:0.5e9:135e9;
+compSheet_earth = 'H04_E';          %sheet in Compositions.xlsx to use for composition, need end of accretion value
 
 
 % READ DATA SHEETS
 PV_data = readmatrix('/db/PVcalc.xlsx');
 Adiabat_data = readmatrix('\db\geotherms_combo.xlsx');
 CompEarth_data = readmatrix('\db\Compositions.xlsx', 'Sheet', compSheet_earth);
-MolW_byM_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11', 'Range', 'B2:B13');
-MolW_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11', 'Range', 'C2:C13');
+MolW_byM_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11_Emantle', 'Range', 'B2:B13');
+MolW_data = readmatrix('\db\MoleWeights.xlsx', 'Sheet', 'Rubie11_Emantle', 'Range', 'C2:C13');
 
-CompEarth = CompEarth_data(:,end);
+CompEarth = CompEarth_data(3:end,end);
 
 Tad = zeros(length(P), length(Tp));
 PV = zeros(length(P), length(Tp));
@@ -68,7 +68,7 @@ p7 = plot(Tliq, P_data, 'k-');
 p8 = plot(Tphi, P_data, 'k:');
 ylabel('Pressure (GPa)')
 xlabel('Temperature (K)')
-ylim([0 120])
+ylim([0 135])
 yticks([0, 20, 40, 60, 80, 100, 120])
 yticklabels(["0","20","40","60","80","100","120","135"])
 ax = gca;
@@ -106,7 +106,7 @@ plot(r_eq(:,5), P/1e9, "Color", "#77AC30", "LineWidth", 1.5);
 xlabel('Fe^{3+}/\SigmaFe Ratio')
 xlim([0 0.3])
 xticks([0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3])
-ylim([0 120])
+ylim([0 135])
 yticks([0, 20, 40, 60, 80, 100, 120])
 yticklabels(["","","","","","","",""])
 ax = gca;

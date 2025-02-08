@@ -134,7 +134,7 @@ ylabel('log(f_{O_2}) at surface')
 ylim([-8 0])
 yticks([-8 -6 -4 -2 0])
 xlim([0 5])
-legend([P135 P100 P80 P50 P25], "135 GPa", "100 GPa", "80 GPa", "50 GPa", "25 GPa", "Location", "southeast")
+legend([P135 P100 P80 P50 P25], "135 GPa", "100 GPa", "75 GPa", "50 GPa", "25 GPa", "Location", "southeast")
 
 subplot(2,2,3);     %4500K Fe ratio
 hold on
@@ -163,5 +163,5 @@ ylabel('log(f_{O_2}) at surface')
 ylim([-8 0])
 yticks([-8 -6 -4 -2 0])
 xlim([0 5])
-legend([P135 P100 P80 P50 P25], "135 GPa", "100 GPa", "80 GPa", "50 GPa", "25 GPa", "Location", "southeast")
+legend([P135 P100 P80 P50 P25], "135 GPa", "100 GPa", "75 GPa", "50 GPa", "25 GPa", "Location", "southeast")
 

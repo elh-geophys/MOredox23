@@ -14,16 +14,16 @@ tic
 % PARAMETERS TO CHANGE
 model = 5;                  %accretion models: 4 = H04, 5 = N21  (using a continous model like 1-3 will take a LONG time :) )
 r_0 = 0.004;                %initial Fe3+/sumFe
-N = 1000;                   %number of MC samples
+N = 500;                   %number of MC samples
 compSheet_earth = 'N21_E';           %sheet in Compositions.xlsx to use for composition
 compSheet_imp = 'N21_imp';
-Tp_type = 'Pmo';               %chooose method to calculate Tp, either 'Pmo', 'U2Q', or 'constant'
+Tp_type = 'constant';               %chooose method to calculate Tp, either 'Pmo' or 'constant'
     Tp_const = 3500;                %[K] Tp for 'constant' method
 dP = 0.5e9;
 
-sheetOut = 'N21_Pmo';            %sheet name to record data
+sheetOut = 'N21_const';            %sheet name to record data
 fileOut = 'Rain_MC.xlsx';    % file name
-write = 1;                   %1 or 0, to write to file
+write = 0;                   %1 or 0, to write to file
 
 % ---------------------------------------------------------------------- %
 
@@ -104,15 +104,6 @@ switch Tp_type
             end
             [r_m_Dt(i,:),~,~] = getRainRatio_Pmo(P_cmb, P_min, dP, r_0,Accr_model, ...
                 dMp_temp, compSheet_earth, FeO_imp, r_imp, rho_m, rho_c_post, M_m, M_m_imp, R_E_post, R_c_post);
-        end
-    case 'U2Q'
-        for i = 1:N
-            if mod(i,50)==0
-               disp(['Calculating trial ', num2str(i)]);
-            end
-            [r_m_Dt(i,:),~,~] = getRainRatio_U2Q(P_cmb, P_min, dP, r_0, Accr_model, ...
-                dMp_temp, compSheet_earth, FeO_imp, r_imp, rho_m, rho_c_post, M_E, M_m, M_c, M_imp, M_m_imp, R_E, ...
-                R_E_post, R_c_post, R_imp);
         end
     case 'constant'
         for i = 1:N
